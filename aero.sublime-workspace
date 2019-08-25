@@ -1,0 +1,792 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"so",
+				"sortorder"
+			],
+			[
+				"all",
+				"alltea"
+			],
+			[
+				"s",
+				"sortby"
+			],
+			[
+				"sor",
+				"sortascdesc"
+			],
+			[
+				"sort",
+				"sortby"
+			],
+			[
+				"ca",
+				"categoryid"
+			],
+			[
+				"new",
+				"newcart"
+			],
+			[
+				"cha",
+				"chaiweight"
+			],
+			[
+				"belon",
+				"belongsToMany"
+			],
+			[
+				"font-s",
+				"font-size\tproperty"
+			],
+			[
+				"border",
+				"border-color"
+			],
+			[
+				"p",
+				"preset"
+			],
+			[
+				"texta",
+				"text-align"
+			],
+			[
+				"col",
+				"color\tproperty"
+			],
+			[
+				"inlin",
+				"inline-block\tdisplay"
+			],
+			[
+				"tex",
+				"text-align\tproperty"
+			],
+			[
+				"wi",
+				"width\tproperty"
+			],
+			[
+				"fon",
+				"font-size"
+			],
+			[
+				"back",
+				"background-color"
+			],
+			[
+				"array_s",
+				"array_shift"
+			],
+			[
+				"User",
+				"UserModel"
+			],
+			[
+				"pos",
+				"pos"
+			],
+			[
+				"str_re",
+				"str_replace"
+			],
+			[
+				"print",
+				"print_r"
+			],
+			[
+				"Use",
+				"UserModel"
+			],
+			[
+				"post",
+				"post_data"
+			],
+			[
+				"key",
+				"keyup"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": ".env",
+			"settings":
+			{
+				"buffer_size": 790,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "resources/views/welcome.blade.php",
+			"settings":
+			{
+				"buffer_size": 2887,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "resources/sass/app.scss",
+			"settings":
+			{
+				"buffer_size": 158,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Volumes/web/meteo/application/libraries/KN04.php",
+			"settings":
+			{
+				"buffer_size": 35981,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "resources/js/app.js",
+			"settings":
+			{
+				"buffer_size": 1101,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "resources/js/components/ExampleComponent.vue",
+			"settings":
+			{
+				"buffer_size": 552,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "routes/web.php",
+			"settings":
+			{
+				"buffer_size": 453,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/SASS Build/SASS - Compressed.sublime-build",
+					""
+				],
+				[
+					"Packages/SASS Build/SASS.sublime-build",
+					""
+				]
+			],
+			[
+				"Packages/SASS Build/SASS.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 280.0,
+		"last_filter": "insta",
+		"selected_items":
+		[
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"sass",
+				"Build With: SASS"
+			],
+			[
+				"pack",
+				"Package Control: Install Package"
+			],
+			[
+				"code",
+				"Format Code"
+			]
+		],
+		"width": 543.0
+	},
+	"console":
+	{
+		"height": 125.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Volumes/web-1/aero",
+		"/Volumes/web-1/aero/app",
+		"/Volumes/web-1/aero/resources",
+		"/Volumes/web-1/aero/resources/js",
+		"/Volumes/web-1/aero/resources/js/components",
+		"/Volumes/web-1/aero/resources/sass",
+		"/Volumes/web-1/aero/resources/views",
+		"/Volumes/web-1/aero/routes"
+	],
+	"file_history":
+	[
+		"/Users/imac/Downloads/Current.rawins",
+		"/Users/imac/Downloads/urls.txt",
+		"/Volumes/web/vchae/frontend/src/styles/partials/_my.scss",
+		"/Volumes/web/vchae/frontend/src/js/main.js",
+		"/Volumes/web/vchae/vchae.online/.env",
+		"/Volumes/web/vchae/vchae.online/themes/vchae/partials/site/head.htm",
+		"/Volumes/web/vchae/frontend/gulpfile.babel.js",
+		"/Volumes/web/vchae/vchae.online/themes/vchae/layouts/main.htm",
+		"/Volumes/web/vchae/vchae.online/themes/vchae/partials/site/footer.htm",
+		"/Volumes/web/vchae/vchae.online/themes/vchae/pages/index.htm",
+		"/Volumes/web/vchae/vchae.online/vendor/genealabs/laravel-model-caching/src/Traits/Cachable.php",
+		"/Volumes/web/vchae/vchae.online/plugins/f2re/vchaeproduct/routes.php",
+		"/Volumes/web/vchae/vchae.online/config/cache.php",
+		"/Volumes/web/vchae/vchae.online/config/database.php",
+		"/Volumes/web/vchae/vchae.online/config/app.php",
+		"/Volumes/web/vchae/vchae.online/plugins/f2re/vchaeproduct/models/Category.php",
+		"/Volumes/web/vchae/vchae.online/plugins/f2re/vchaeproduct/models/Watermark.php",
+		"/Volumes/web/vchae/vchae.online/composer.json",
+		"/Volumes/web/vchae/vchae.online/plugins/f2re/vchaeproduct/models/Onmain.php",
+		"/Volumes/web/vchae/vchae.online/plugins/f2re/vchaeproduct/models/Provincya.php",
+		"/Volumes/web/vchae/vchae.online/plugins/f2re/vchaeproduct/models/Tags.php",
+		"/Volumes/web/vchae/vchae.online/themes/vchae/pages/kategoriya.htm",
+		"/Volumes/web/vchae/vchae.online/themes/vchae/assets/js/components/category_vue.js",
+		"/Volumes/web/vchae/vchae.online/themes/vchae/pages/korzina.htm",
+		"/Volumes/web/vchae/vchae.online/themes/vchae/partials/top_menu.htm",
+		"/Volumes/web/msite/msite/static/js/components/pogoda_table_vue_component.js",
+		"/Volumes/web/msite/msite/static/js/components/stantions_list_vue_component.js",
+		"/Applications/XCOM Enemy Unknown - Elite Edition.app/Contents/Resources/CriticalFiles.strings",
+		"/Applications/XCOM Enemy Unknown - Elite Edition.app/Contents/Resources/specification_stock.xml",
+		"/Applications/XCOM Enemy Unknown - Elite Edition.app/Contents/Resources/ru.lproj/Activation.strings",
+		"/Applications/XCOM Enemy Unknown - Elite Edition.app/Contents/Resources/Data/Engine/Config/BaseGame.ini",
+		"/Users/imac/Downloads/index.svg",
+		"/Volumes/web/vchae/vchae.online/themes/vchae/assets/js/components/cart_vue.js",
+		"/Volumes/web/vchae/vchae.online/themes/vchae/assets/js/components/menu_vue.js",
+		"/Volumes/web/vchae/vchae.online/themes/vchae/assets/js/components/chai_vue.js",
+		"/Volumes/web/vchae/vchae.online/config/session.php",
+		"/Volumes/web/vchae/vchae.online/themes/vchae/pages/chaj.htm",
+		"/Volumes/web/vchae/vchae.online/plugins/f2re/vchaeproduct/models/Cart.php",
+		"/Volumes/web/vchae/vchae.online/config/image.php",
+		"/Volumes/web/vchae/vchae.online/modules/system/providers.php",
+		"/Volumes/web/vchae/vchae.online/modules/system/aliases.php",
+		"/Users/imac/Library/Application Support/Sublime Text 3/Packages/User/Xdebug.sublime-settings",
+		"/Volumes/web/vchae/vchae.sublime-project",
+		"/Volumes/web/landings/mishki2/css/animate.css",
+		"/Volumes/web/landings/mishki2/js/contact-form-script.js",
+		"/Volumes/web/landings/mishki2/tz_mail/contact.php",
+		"/Users/imac/Library/Application Support/Sublime Text 3/Installed Packages/SASS Build.sublime-package",
+		"/Volumes/web/landings/mishki2/scss/main.scss",
+		"/Volumes/web/tvorchestvo2/web/public/css/index.css",
+		"/Volumes/web/tvorchestvo2/web/public/css/autor.css",
+		"/Volumes/web/tvorchestvo2/web/resources/views/news/index.blade.php",
+		"/Volumes/web/tvorchestvo2/web/resources/views/layouts/indexLayout.blade.php",
+		"/Volumes/web/tvorchestvo2/web/resources/views/login/index.blade.php",
+		"/Volumes/web/tvorchestvo2/web/resources/views/layouts/workLayout.blade.php",
+		"/Volumes/web/tvorchestvo2/web/resources/views/index/metrika.blade.php",
+		"/Volumes/web/tvorchestvo2/web/resources/views/news/news.blade.php",
+		"/Volumes/web/tvorchestvo2/web/resources/views/index/footer.blade.php",
+		"/Volumes/web/tvorchestvo2/web/storage/framework/views/038b6b5888011d0d7261230d72b47d76a0b89387.php",
+		"/Volumes/web/tvorchestvo2/web/resources/views/about.blade.php",
+		"/Volumes/web/tvorchestvo2/web/resources/views/contact.blade.php",
+		"/Volumes/web/conmake/resources/views/layout.blade.php",
+		"/Volumes/web/kvserp.ru/application/models/usermodel.php",
+		"/Volumes/web/kvserp.ru/application/controllers/ajax.php",
+		"/Volumes/web/kvserp.ru/application/controllers/category.php",
+		"/Volumes/web/kvserp.ru/application/views/objects.php",
+		"/Volumes/web/kvserp.ru/application/controllers/auth.php",
+		"/Volumes/web/kvserp.ru/application/models/mainmodel.php",
+		"/Volumes/web/kvserp.ru/application/views/admpanel/index.php",
+		"/Volumes/web/kvserp.ru/application/views/index.php",
+		"/Volumes/web/kvserp.ru/application/views/footer.php",
+		"/Volumes/web/kvserp.ru/application/views/xml.php",
+		"/Volumes/web/kvserp.ru/js/adm_scripts.js",
+		"/HTTP/kvserp.ru/application/controllers/pages.php",
+		"/HTTP/kvserp.ru/application/controllers/xml.php",
+		"/HTTP/kvserp.ru/application/views/info.php",
+		"/HTTP/kvserp.ru/yandex.xml",
+		"/HTTP/kvserp.ru/css/objects.css",
+		"/HTTP/kvserp.ru/css/index.css",
+		"/HTTP/kvserp.ru/css/docs.css",
+		"/HTTP/kvserp.ru/css/style.css",
+		"/HTTP/kvserp.ru/application/views/contact.php",
+		"/HTTP/kvserp.ru/application/views/objects.php",
+		"/HTTP/kvserp.ru/application/controllers/ajax.php",
+		"/HTTP/kvserp.ru/js/adm_scripts.js",
+		"/HTTP/kvserp.ru/application/views/admpanel/index.php",
+		"/HTTP/kvserp.ru/application/controllers/main.php",
+		"/HTTP/kvserp.ru/robots.txt",
+		"/HTTP/meteo/convertcsv.csv",
+		"/HTTP/meteo/stantion1.htm",
+		"/HTTP/meteo/aero-all1.htm",
+		"/HTTP/kvserp.ru/application/views/xml.php",
+		"/HTTP/kvserp.ru/application/controllers/objects.php",
+		"/HTTP/kvserp.ru/application/libraries/User.php",
+		"/HTTP/kvserp.ru/css/adm_style.css",
+		"/HTTP/kvserp.ru/application/views/ourcommand.php",
+		"/HTTP/kvserp.ru/css/ourcommand.css",
+		"/private/var/folders/j5/4bxxdc0d6lbg38km5n_7d_2m0000gn/T/fz3temp-1/index.php",
+		"/HTTP/kvserp.ru/application/config/routes.php",
+		"/HTTP/kvserp.ru/application/config/config.php",
+		"/HTTP/kvserp.ru/application/views/work.php",
+		"/HTTP/kvserp.ru/application/views/index.php",
+		"/HTTP/kvserp.ru/application/models/ion_auth_model.php",
+		"/HTTP/kvserp.ru/application/views/footer.php",
+		"/HTTP/kvserp.ru/css/info.css",
+		"/HTTP/kvserp.ru/css/contact.css",
+		"/HTTP/kvserp.ru/application/views/header.php",
+		"/HTTP/kvserp.ru/application/views/metrika_analytics.php",
+		"/HTTP/votmastera.ru/sitemap/sitemap.xml",
+		"/HTTP/kvserp.ru/application/views/category.php",
+		"/HTTP/kvserp.ru/application/controllers/category.php",
+		"/HTTP/kvserp.ru/application/libraries/Item.php",
+		"/HTTP/kvserp.ru/application/controllers/auth.php",
+		"/private/var/folders/j5/4bxxdc0d6lbg38km5n_7d_2m0000gn/T/fz3temp-1/database.php",
+		"/Users/imac/Downloads/solvintech_htest(2).sql",
+		"/private/var/folders/j5/4bxxdc0d6lbg38km5n_7d_2m0000gn/T/fz3temp-1/robots.txt",
+		"/HTTP/kvserp.ru/css/bootstrap.min.css",
+		"/HTTP/kvserp.ru/index.php",
+		"/HTTP/kvserp.ru/application/views/about.php",
+		"/HTTP/kvserp.ru/css/about.css",
+		"/HTTP/kvserp.ru/application/models/mainmodel.php",
+		"/HTTP/kvserp.ru/application/config/database.php",
+		"/Users/imac/Library/Application Support/Sublime Text 2/Packages/Default/Default (OSX).sublime-keymap",
+		"/Users/imac/Library/Application Support/Sublime Text 2/Packages/User/Default (OSX).sublime-keymap",
+		"/Users/imac/Library/Application Support/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/Users/imac/Library/Application Support/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/HTTP/kvserp.ru/kvserp.sublime-project"
+	],
+	"find":
+	{
+		"height": 29.0
+	},
+	"find_in_files":
+	{
+		"height": 113.0,
+		"where_history":
+		[
+			"/Volumes/web/landings/mishki2",
+			"/Volumes/web/tvorchestvo2/web"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"vue.min",
+			"alltea",
+			"category_id",
+			"}}",
+			"newchai",
+			"MODEL_CACHE_STORE",
+			"float",
+			"setCategoryname",
+			"category_name",
+			"new",
+			"tea",
+			"remove",
+			"addToCart",
+			"image",
+			"qty",
+			"themezaa_email",
+			"purchase_emails",
+			"navbar-brand",
+			"offset",
+			"Заказ",
+			"msg_php_email_not_sent",
+			"themezaa_email",
+			"msg_php_email_not_sent",
+			"themezaa_email",
+			"tada",
+			"msgSubmit",
+			"submitMSG",
+			"formSuccess",
+			"contact",
+			"submit",
+			"tz_submit",
+			"contact-white",
+			"Did",
+			"themezaa_email",
+			"purchase_emails",
+			"preset",
+			"button",
+			"small-dialog",
+			"Did you fill in the form properly?",
+			"danger",
+			"#contact",
+			"contact",
+			"img",
+			"/img",
+			"overlay",
+			"$preset",
+			"sub-item-info",
+			"font-size: 14px",
+			";\n",
+			"14px",
+			".text",
+			"adsbygoogle.js",
+			"2543621041085290",
+			"google_ad_client"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 3,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": ".env",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 790,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "resources/views/welcome.blade.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2887,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Laravel Blade Highlighter/blade.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1156.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "resources/sass/app.scss",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 158,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Sass/Syntaxes/SCSS.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/Volumes/web/meteo/application/libraries/KN04.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 35981,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								898,
+								898
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "resources/js/app.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1101,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "resources/js/components/ExampleComponent.vue",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 552,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Vue Syntax Highlight/vue.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "routes/web.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 453,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 29.0
+	},
+	"input":
+	{
+		"height": 37.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 134.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.xdebug":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "aero.sublime-project",
+	"replace":
+	{
+		"height": 54.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"category_vue",
+				"vchae.online/themes/vchae/assets/js/components/category_vue.js"
+			],
+			[
+				"genealabs/laravelmodelcaching/traits/cachable",
+				"vchae.online/vendor/genealabs/laravel-model-caching/src/Traits/Cachable.php"
+			],
+			[
+				"odules/system/aliases.php",
+				"vchae.online/modules/system/aliases.php"
+			],
+			[
+				"modules/system/providers.php",
+				"vchae.online/modules/system/providers.php"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"/HTTP/plugincomment/plugin.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 276.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
