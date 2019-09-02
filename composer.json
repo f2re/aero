@@ -7,11 +7,21 @@
         "laravel"
     ],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/f2re/aero",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
     "require": {
         "php": "^7.1.3",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "5.8.*",
-        "laravel/tinker": "^1.0"
+        "laravel/tinker": "^1.0",
+        "f2re/aero":"dev-master"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",
@@ -29,7 +39,10 @@
     "extra": {
         "laravel": {
             "dont-discover": []
-        }
+        },
+        "providers":[
+            "F2re\\Aero\\AeroServiceProvider"
+        ]
     },
     "autoload": {
         "psr-4": {
@@ -58,5 +71,5 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
         ]
-    }
+    }   
 }

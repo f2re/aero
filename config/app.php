@@ -162,9 +162,11 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
+
         /*
          * Package Service Providers...
          */
+        F2re\Aero\AeroServiceProvider::class,
 
         /*
          * Application Service Providers...
