@@ -4,12 +4,60 @@
 		"selected_items":
 		[
 			[
-				"so",
-				"sortorder"
+				"max",
+				"maxdelta"
 			],
 			[
 				"all",
-				"alltea"
+				"alleft"
+			],
+			[
+				"he",
+				"height"
+			],
+			[
+				"fir",
+				"firsttop"
+			],
+			[
+				"add",
+				"addClass"
+			],
+			[
+				"Tp",
+				"Tprev"
+			],
+			[
+				"_st",
+				"_stinfo"
+			],
+			[
+				"deco",
+				"decoder"
+			],
+			[
+				"_f",
+				"_font"
+			],
+			[
+				"_fon",
+				"_fontPath"
+			],
+			[
+				"getPlo",
+				"getPlotX"
+			],
+			[
+				"check",
+				"checkData"
+			],
+			[
+				"stanti",
+				"stantionInfo"
+			],
+			[
+				"so",
+				"sortorder"
 			],
 			[
 				"s",
@@ -127,15 +175,37 @@
 			"file": "resources/views/welcome.blade.php",
 			"settings":
 			{
-				"buffer_size": 2887,
+				"buffer_size": 1631,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "resources/sass/app.scss",
+			"file": "packages/f2re/aero/src/AeroController.php",
 			"settings":
 			{
-				"buffer_size": 158,
+				"buffer_size": 2462,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "<?php\n\nnamespace F2re\\Aero;\n\nuse CpChart\\Data;\nuse CpChart\\Image;\nuse CpChart\\Draw;\n\n/**\n * класс, который будет раскодировать телеграмму (текст)\n */\nclass AeroDrawer\n{\n  \n  /**\n   * KN04 code variable\n   * @var null\n   */\n  private $_kn = Null;\n\n  /**\n   * Flatten array by $_kn\n   * @var null\n   */\n  private $_values = Null;\n\n  /**\n   * Heights \n   * @var null\n   */\n  private $_H = Null;\n\n  /**\n   * Image data variable\n   * @var Data\n   */\n  private $_data = Null;\n\n  /**\n   * Image variable\n   * @var null\n   */\n  private $_image = Null;\n\n  /**\n   * Plot size [0] - X, [1] - Y\n   * @var [type]\n   */\n  private $_plotsize = [1900, 1300];\n\n  /**\n   * Stantion info variable\n   * @var null\n   */\n  private $_stinfo = Null;\n\n\n  /**\n   * Image shadow params\n   * @var array\n   */\n  private $_shadow = array(\"X\"=>-1,\"Y\"=>1,\"R\"=>1,\"G\"=>0,\"B\"=>0,\"Alpha\"=>20);\n\n\n  /**\n   * Base font size\n   * @var integer\n   */\n  private $_baseSize = 12;\n\n  /**\n   * Font path\n   * @var string\n   */\n  private $_fontPath = __DIR__.\"/fonts/\";\n\n  /**\n   * Font name\n   * @var string\n   */\n  private $_font = \"DejaVuSans-ExtraLight.ttf\";\n\n  /**\n   * Start sostoyanie spline\n   * @var null\n   */\n  private $_start = Null;\n\n  /**\n   * Pallete of colors fills\n   * @var array\n   */\n  private $_fyellow = array('R'=>251,'G'=>255,'B'=>56);\n  private $_fred    = array('R'=>204,'G'=>41,'B'=>54);\n  private $_fblue   = array('R'=>67,'G'=>146,'B'=>241);\n\n  /**\n   * Instantiate a new AeroDrawer instance.\n   */\n  public function __construct( $kn, $stinfo ){\n    // dd($kn);\n    // setting the KN04 code to class\n    $this->setKn($kn);\n\n    // set up stantion info\n    $this->setStantion($stinfo);\n  }\n\n  /**\n   * Set Up KN04 code\n   * @param [type] $kn [description]\n   */\n  public function setKn($kn){\n\n    $this->_kn = $kn;\n\n    $this->_values = $this->_kn->to_array();\n\n    // if data not exists\n    if ( !$this->checkData() ){\n      return false;\n    }\n\n    $this->_H = array();\n\n    foreach ($this->_values['std'] as $P => $val) {\n      if ( isset($val['H']) && $val['H']!='' ) {\n        array_push($this->_H, $val['H']);\n      }\n    }\n\n    return true;\n  }\n\n  /**\n   * Set Up KN04 code\n   * @param [type] $kn [description]\n   */\n  public function setStantion($stinfo){\n    $this->_stinfo = $stinfo;\n    return $this;\n  }\n\n  /**\n   * Checking the data\n   * @return [type] [description]\n   */\n  public function checkData(){\n    if ( !is_array($this->_values['std']) ) {\n      return false;\n    }\n    return true;\n  }\n\n  /**\n   * return plot size X\n   * @return [int] [description]\n   */\n  public function getPlotX(){\n    return $this->_plotsize[0];\n  }\n\n  /**\n   * return plot size Y\n   * @return [int] [description]\n   */\n  public function getPlotY(){\n    return $this->_plotsize[1];\n  }\n\n\n  /**\n   * рассчитываем координаты для кривой годске (кривая насыщения надо льдом)\n   * @param  [type]  $val [description]\n   * @param  integer $max [description]\n   * @return [type]       [description]\n   */\n  function godske($val,$max=-80){\n    $ret = -8*$val;\n    if ( $ret<=-80 ){\n        $ret=-80;\n    }\n    return $ret;\n  }\n\n\n  /**\n   * Рисуем диаграмму \n   */\n  function init(){\n      \n    /* Create your dataset object */ \n    $this->_data = new Data(); \n\n    /* Add data in your dataset */ \n    $tempArray = array();\n    for ( $i=-90;$i<=50;$i+=1 ) {\n      array_push($tempArray, $i);\n    }\n    $this->_data->addPoints($tempArray,'Temperature');\n    $this->_data->setXAxisUnit(\"°\");\n    $this->_data->setAbscissa(\"Temperature\"); \n\n    /* Create a pChart object and associate your dataset */ \n    $this->_image = new Image($this->getPlotX(),$this->getPlotY(),$this->_data);\n\n    /* Choose a nice font */\n    $this->_image->setFontProperties(array(\"FontName\"=>$this->_fontPath.$this->_font,\"FontSize\"=>$this->_baseSize));\n\n    /* Define the boundaries of the graph area */\n    $this->_image->setGraphArea( (int)( $this->getPlotX()*0.05 ),\n                                 (int)( $this->getPlotY()*0.02 ),\n                                 (int)( $this->getPlotX()*0.80 ),\n                                 (int)( $this->getPlotY()*0.95 ));\n\n    /**\n     * Инициализируем подложку\n     */\n    $this->_data->addPoints($this->_H,\"StdSurface\");\n    $this->_data->setSerieDescription(\"StdSurface\",0);\n    $this->_data->setAxisDisplay(0,AXIS_FORMAT_DEFAULT);\n    $this->_data->setAxisUnit(0,\"м\");\n\n    /* Draw the scale, keep everything automatic */ \n    $this->_image->drawScale( array(\"Factors\"          => array(1),\n                                    \"Pos\"              => SCALE_POS_LEFTRIGHT,\n                                    \"LabelSkip\"        => 9,\n                                    \"YMargin\"          => 20,\n                                    'GridTicks'        => 9,\n                                    'GridAlpha'        => 30,\n                                    'GridR'            => 100,\n                                    'GridG'            => 0,\n                                    'GridB'            => 0,\n                                    'DrawYLines'       => TRUE, //вертикальная сетка\n                                    \"LabelingMethod\"   => LABELING_ALL,\n                                    \"Mode\"             => SCALE_MODE_START0 ) );\n\n    $this->drawBlank();\n    return $this;\n  }\n\n  /**\n   * Draw blank page\n   * @return [type] [description]\n   */\n  public function drawBlank(){\n    /**\n     * *                                        * *\n     * *            П О Д Л О Ж К А             * *\n     * *                                        * *\n     */\n\n    //рисуем линии давления\n    $this->_image->drawThreshold(0,array(\n                                          \"R\"         => 120,\n                                          \"G\"         => 50,\n                                          \"B\"         => 0,\n                                          \"Alpha\"     => 20,\n                                          \"Ticks\"     => 5,\n                                          'NoMargin'  => TRUE));\n\n    foreach ( $this->_values['std'] as $P => $val ){\n        if ( isset($val['H'])&&$val['H']!=''&&$P>0 ){\n          // http://wiki.pchart.net/doc.doc.draw.threshold.html\n          $this->_image->drawThreshold( $val['H'],\n            array(  \"R\"            => 0,\n                    \"G\"            => 0,\n                    \"B\"            => 0,\n                    'BoxR'         => 255,\n                    'BoxG'         => 255,\n                    'BoxB'         => 255,\n                    'BoxAlpha'     => 100,\n                    'CaptionR'     => 100,\n                    'CaptionG'     => 100,\n                    'CaptionB'     => 150,\n                    \"Alpha\"        => 50,\n                    \"Ticks\"        => 9,\n                    'NoMargin'     => TRUE,\n                    'Caption'      => $P,\n                    'WriteCaption' => TRUE));\n\n          $this->_image->drawThreshold( $val['H'],\n            array( \"Alpha\"         => 0,\n                   'Caption'       => $val['H'].'м',\n                   'BoxR'          => 220,\n                   'BoxG'          => 220,\n                   'BoxB'          => 250,\n                   'BoxAlpha'      => 90,\n                   'CaptionAlpha'  => 90,\n                   'CaptionR'      => 100,\n                   'CaptionG'      => 100,\n                   'CaptionB'      => 150,\n                   'CaptionOffset' => 50,\n                   'WriteCaption'  => TRUE));\n        }\n    }\n\n    /**\n     * рисуем изограммы\n     */\n    $SIcolors = array( \"R\"     => 150,\n                       \"G\"     => 80,\n                       \"B\"     => 0,\n                       \"Ticks\" => 0,\n                       'Alpha' => 20 );\n\n    for ($i=-50; $i <= 40; $i+=10) { \n        $this->drawChartLine( $i, 0, $i-9.8*(abs(9+$i/10)*1.0204), (abs(9+$i/10)*1.0204)*1000,  $SIcolors);\n    }\n\n    //влажные адиабаты\n    $Acolors = array( \"R\"     => 20,\n                      \"G\"     => 120,\n                      \"B\"     => 20,\n                      \"Ticks\" => 15,\n                      'Alpha' => 30 );\n    for ($i=-50; $i<50 ; $i=$i+10) { \n        $points = $this->_kn->getVlagAdiabat($i,35);\n        $this->_kn->averageSpline2($points,4);\n        $this->drawChartSpline( $points, $Acolors );    \n    }\n\n\n    //название бланка\n    $TextSettingsINDEX = array( \"DrawBox\"  => FALSE,\n                                \"R\"        => 250,\n                                \"G\"        => 100,\n                                \"B\"        => 100,\n                                'Alpha'    => 90,\n                                \"FontSize\" => 15);\n    $this->_image->drawText( \n                      $this->toX( -33 ), \n                      55 , \n                      $this->_stinfo['name'].' ('.$this->_stinfo['name_en'].', '.$this->_stinfo['id'].') '.\n                      $this->_kn->_date.' '.$this->_kn->_utc.'.00 (UTC)' ,\n                      $TextSettingsINDEX);\n\n    return $this;\n  }\n\n  /**\n   * Draw inversions line\n   * @return [type] [description]\n   */\n  public function drawInversions(){\n    /**\n     * *                                        * *\n     * *         I N V E R S I O N S            * *\n     * *                                        * *\n     */\n\n    //находим инверсии\n    $inversion          = $this->_kn->getAllInversion();\n    $step               = 20; //длина линии\n    $startT             = 0; //правая часть температуры\n    $TextSettings       = array( \"DrawBox\"=>FALSE, \"R\"=>0,  \"G\"=>0, \"B\"=>0, \"Angle\"=>0, \"FontSize\"=>$this->_baseSize, 'Alpha'=>90);\n    $TextSettingsT      = array( \"DrawBox\"=>FALSE, \"R\"=>110,  \"G\"=>10,  \"B\"=>0, \"Angle\"=>0, \"FontSize\"=>$this->_baseSize, 'Alpha'=>90);\n    $TextSettingsTROPOT = array( \"DrawBox\"=>FALSE, \"R\"=>110,  \"G\"=>10,  \"B\"=>0, \"Angle\"=>0, \"FontSize\"=>$this->_baseSize, 'Alpha'=>90);\n    $theight            = 60; //высота надписи\n    $TextSettings2      = array( \"DrawBox\"=>FALSE,\"R\"=>100,\"G\"=>100,\"B\"=>150, 'Alpha'=>90,\"FontSize\"=>$this->_baseSize);\n    $Icolors            = array( \"R\"=>220,\"G\"=>220,\"B\"=>50,\"Ticks\"=>0 );\n    $TROPOcolors        = array( \"R\"=>140,\"G\"=>40,\"B\"=>20,\"Ticks\"=>0 ); //цвета тропопаузы\n    $tropoH             = 5500;//высота выше которой инверсии считаем тропопаузами\n    $polygon            = array( \"Alpha\"=>40,\n                                 \"Dash\"=>TRUE,\"DashR\"=>190,\"DashG\"=>230,\"DashB\"=>210,\n                                 \"BorderR\"=>255, \"BorderG\"=>255,\"BorderB\"=>255) + $this->_fyellow;\n\n    $polygonTROPO       = array( \"R\"=>110,\"G\"=>20,\"B\"=>20,\"Alpha\"=>25,\n                                 \"Dash\"=>TRUE,\"DashR\"=>170,\"DashG\"=>220,\"DashB\"=>190,\n                                 \"BorderR\"=>255, \"BorderG\"=>255,\"BorderB\"=>255);\n    $istropo            = false;\n\n    // \n    // проходимся по всем инверсиям\n    // \n    foreach ($inversion as $val) {\n        // если это тропопауза - то включаем режим тропопаузы\n        if ( $val['tropo'] ){\n            $istropo=true;\n        }\n\n        $startT = $val['stop']['T']>$val['start']['T'] ? $val['stop']['T'] : $val['start']['T'] ;\n\n        $this->drawChartLine( $val['start']['T'], \n                                      $val['start']['H'], \n                                      $startT+$step,$val['start']['H'],  \n                                      $istropo? $TROPOcolors :$Icolors);\n\n        $this->drawChartLine( $val['stop']['T'],\n                                      $val['stop']['H'],   \n                                      $startT+$step,$val['stop']['H'],  \n                                      $istropo? $TROPOcolors :$Icolors);\n\n        $dH = ceil(  $val['stop']['H']-$val['start']['H']    ); //высота инверсионного слоя\n        $dT = round( $val['stop']['T']-$val['start']['T'], 1 ); //разность температур\n\n        if ( $istropo ){\n            $this->_image->drawText( $this->toX( $startT+($step - 17 )/2 ),       \n                                     $this->toY( $val['start']['H']+($dH-$theight*5)/2 ), \n                                     'ТРОПОПАУЗА',\n                                     $TextSettingsTROPOT );\n\n            $this->_image->drawText( $this->toX( $startT+($step - 7 )/2 ),\n                                     $this->toY( $val['start']['H']+$theight*2*( $dH<700?-1.8:1 ) ), \n                                     'T='.round($val['start']['T'],1).'°',\n                                     $TextSettingsT );\n\n            $this->_image->drawText( $this->toX( $startT+$step+1 ), \n                                     $this->toY( $val['start']['H']-$theight ), \n                                     round( $val['start']['H'] ).'м' ,\n                                     $TextSettings2);\n        }else{\n            $this->_image->drawText( $this->toX( $val['stop']['T']+2 ),\n                                     $this->toY( $val['start']['H']+$dH/2-$theight ), \n                                     'dT='.$dT.'° dH='.$dH.'м ',\n                                     $TextSettings );\n\n            $this->_image->drawText( $this->toX($val['stop']['T']+$step+1 ), \n                                     $this->toY( $val['start']['H']-$theight ), \n                                     round( $val['start']['H'] ).'м' ,\n                                     $TextSettings2);\n        }\n\n        $Points = array(  );\n        //рисуем против часовой стрелки с верхнего левого угла\n        //первая точка - левая верхняя\n        $Points[] = $this->toX( $val['stop']['T'] );  \n        $Points[] = $this->toY( $val['stop']['H'] );\n        //проверяем есть ли слева промежуточные точки (чтобы заполнить ломаные кривые)\n        if ( isset($val['vals']) && sizeof($val['vals'])>0 ){\n            $size = sizeof($val['vals'])-1; //в обратном порядке идем против часовой стрелки сверху вниз\n            for ( $i=$size; $i>=0; $i--) {\n                $Points[] = $this->toX( $val['vals'][$i]['T'] );  \n                $Points[] = $this->toY( $val['vals'][$i]['H'] );   \n            }                \n        }\n        $Points[] = $this->toX( $val['start']['T'] );  \n        $Points[] = $this->toY( $val['start']['H'] );\n        $Points[] = $this->toX( $startT+$step );  \n        $Points[] = $this->toY( $val['start']['H'] );\n        //последнняя точка \n        $Points[] = $this->toX( $startT+$step );  \n        $Points[] = $this->toY( $val['stop']['H'] );\n        \n        $this->_image->drawPolygon( $Points, $istropo? $polygonTROPO :$polygon);\n\n        $istropo = false;\n    }\n\n    return $this;\n  }\n\n\n  /**\n   * Draw tempereature chart\n   * @return [type] [description]\n   */\n  public function drawTemp(){\n    //включаем тени\n    $this->_image->setShadow(TRUE,$this->_shadow );\n    /***                                        ***\n     * *                                        * *\n     * *       T E M P E R A T U R E            * *\n     * *                                        * *\n     ***                                        ***/\n\n     /**\n      * рисуем график температуры\n      * дефицита точки росы\n      * и кривую насыщения надо льдом\n      */\n    $Tcolors   = array( \"R\"=>255,\"G\"=>50,\"B\"=>50,\"Ticks\"=>0 );\n    $Dcolors   = array( \"R\"=>50,\"G\"=>180,\"B\"=>50,\"Ticks\"=>0 );\n    $Gcolors   = array( \"R\"=>50,\"G\"=>50,\"B\"=>255,\"Ticks\"=>5 );\n    $Tprev     = array();\n    $allValues = $this->_kn->mergedarray;\n    $points    = array();\n\n    foreach ( $allValues as $P => $val ){\n      if ( !isset($val['H'])||trim($val['H'])==''){\n        $val['H'] = $this->_kn->PtoH($val['P']);\n      }\n\n      if ( isset($val['H']) && $val['H']!='' && $P>0 && isset($val['T']) && isset($val['D']) ){\n          \n        if ( isset($Tprev['T']) && isset($Tprev['H']) && $Tprev['H']!=$val['H'] ){\n          $this->drawChartLine( $Tprev['T'],\n                                        $Tprev['H'], \n                                        $val['T'],\n                                        $val['H'],  \n                                        $Tcolors);\n            $this->drawChartLine( $Tprev['T']-$Tprev['D'],\n                                          $Tprev['H'], \n                                          $val['T']-$val['D'],\n                                          $val['H'],  \n                                          $Dcolors);\n            // заодно нариуем кривую Годске\n            if ( $val['H'] <= 3000 ){\n              $this->drawChartLine( $this->godske($Tprev['D']) ,\n                                            $Tprev['H'], $this->godske($val['D']) ,\n                                            $val['H'],  \n                                            $Gcolors);\n            }\n        }\n\n        $Tprev   = array( 'H'=>$val['H'], 'T'=>$val['T'],'D'=>$val['D'] );                \n      }\n    }\n    // print_r($val);\n    //рисуем уровень -20\n    $T20              = $this->_kn->getHforT(-20);\n    $T10              = $this->_kn->getHforT(-10);\n    $T0               = $this->_kn->getHforT(0);\n    $Tcolors['Alpha'] = 40;\n    $step             = 20; //длина линии\n    if ((int)$T20>0) {\n      $this->drawChartLine( -20,$T20, -20+$step,$T20,  $Tcolors);\n    }\n    if ((int)$T10>0) {\n      $this->drawChartLine( -10,$T10, -10+$step,$T10,  $Tcolors);\n    }\n    if ((int)$T0>0)  {\n      $this->drawChartLine( 0,$T0,      0+$step,$T0,  $Tcolors);\n    }\n\n    $this->_image->setShadow(FALSE);\n\n    return $this;\n  }\n\n\n  /**\n   * Draw isoterm level lines\n   * @return [type] [description]\n   */\n  public function drawIsoterm(){\n    /***                                        ***\n     * *                                        * *\n     * *             I S O T E R M              * *\n     * *                                        * *\n     ***                                        ***/\n    $T20              = $this->_kn->getHforT(-20);\n    $T10              = $this->_kn->getHforT(-10);\n    $T0               = $this->_kn->getHforT(0);\n    $step             = 20; //длина линии\n    //-20\n    $TextSettings = array(\"DrawBox\"=>FALSE,\"R\"=>255,\"G\"=>0,\"B\"=>0,\"Angle\"=>0,\"FontSize\"=>13,'Alpha'=>90);\n    $TextSettings2 = array(\"DrawBox\"=>TRUE,\"BoxRounded\"=>TRUE,\"R\"=>50,\"G\"=>50,\"B\"=>150, 'Alpha'=>100,\"FontSize\"=>10,'BoxR'=>220,'BoxG'=>220,'BoxB'=>250,'BoxAlpha'=>80,'RoundedRadius'=>3);\n    if ((int)$T20>0){\n        $this->_image->drawText( $this->toX(-20 + $step +1), $this->toY($T20-85),\"T=-20°\",$TextSettings);\n        $this->_image->drawText( $this->toX(-20 + $step +8 ), $this->toY($T20-45), round($T20).'м' ,$TextSettings2);\n    }\n    //-10\n    if ((int)$T10>0){\n        $this->_image->drawText( $this->toX(-10+ $step +1), $this->toY($T10-85), \"T=-10°\", $TextSettings);\n        $this->_image->drawText( $this->toX(-10+ $step +8), $this->toY($T10-45), round($T10).'м' , $TextSettings2);\n    }\n    //0\n    if ((int)$T0>0){\n        $this->_image->drawText( $this->toX($step+ 1), $this->toY($T0-85),\"T=0°\",$TextSettings);\n        $this->_image->drawText( $this->toX($step+ 8), $this->toY($T0-45), round($T0).'м' ,$TextSettings2);\n    }\n    \n\n    return $this;\n  }\n    \n\n  /**\n   * Draw wind data\n   * @return [type] [description]\n   */\n  public function drawWind(){\n\n    /***                                        ***\n     * *                                        * *\n     * *          W I N D S T R E A M           * *\n     * *                                        * *\n     ***                                        ***/\n\n    $this->_image->setShadow(FALSE );  \n\n    //рисуем струйные течения\n    $stream      = array();\n    $strBegin    = false;\n    $strPrev     = array();\n    $polygonWIND = array( \"R\"=>20,\"G\"=>20,\"B\"=>150,\"Alpha\"=>10,\n                          \"Dash\"=>TRUE,\"DashR\"=>170,\"DashG\"=>220,\"DashB\"=>190,\n                          \"BorderR\"=>255, \"BorderG\"=>255,\"BorderB\"=>255);\n    $maxWind     = array();\n\n    foreach ($this->_kn->getmergedarray() as $key => $value) {\n      if ( isset($value['FFF']) ){\n        if ( !isset($value['H'])&&isset($value['P']) ) $value['H']=$this->_kn->PtoH($value['P']);\n        \n        //максимальный ветер\n        if ( !isset($maxWind['FFF']) || $value['FFF']>$maxWind['FFF'] ) {\n          $maxWind['FFF'] = $value['FFF'];\n          $maxWind['DD']  = $value['DD'];\n          $maxWind['H']   = isset($value['H'])?$value['H']:$this->_kn->PtoH($value['P']);\n        }\n\n        if ( $strBegin && $value['FFF']<28 \n            && ( isset($value['H']) || isset($value['P']) ) \n            && ( isset($strPrev['H']) || isset($strPrev['P']) ) \n           ){\n          $strBegin = false;\n          if ( $strPrev['FFF']==$value['FFF'] || $strPrev['FFF']==28 ){\n            $stream['end'] = round(   $strPrev['H']  ) + 0.01;\n          }else{\n            $stream['end'] = round(   $strPrev['H'] + ( ($strPrev['FFF'] - 28) *  ( ($value['H'] - $strPrev['H']) / ( $strPrev['FFF']-28 ) ) ) ) + 0.01;    \n          }\n        }\n\n        if ( !$strBegin && $value['FFF']>=28 \n             && (isset($value['H'])||isset($value['P'])) \n             && (isset($strPrev['H']) || isset($strPrev['P']) ) ){\n          $strBegin = true;\n          if ( $strPrev['FFF'] == $value['FFF'] ){\n            $stream['begin'] = round(   $strPrev['H']  ) + 0.01;\n          }else{\n            $stream['begin'] = round(   $strPrev['H'] + ( ($strPrev['FFF'] - 28) *  ( ($value['H'] - $strPrev['H']) / ($strPrev['FFF']-28) ) ) ) + 0.01;\n          }\n        }\n        \n        if ( (isset($value['H'])&&$value['H']>0) || (isset($value['P'])&&$value['P']>0) ){\n          $strPrev = $value;\n        }\n      }\n    }\n\n    // рисуем текст максимального ветра\n    if ( sizeof($maxWind)>0 ){\n      $TextSettingsWIND = array( \"DrawBox\"=>TRUE,\"BoxRounded\"=>TRUE,\n                                 \"R\"=>20,\"G\"=>20,\"B\"=>200, 'Alpha'=>100,\n                                 \"FontSize\"=>10,'RoundedRadius'=>5,\n                                 'BoxR'=>255,'BoxG'=>255,'BoxB'=>255,'BoxAlpha'=>90);\n      if ( isset($maxWind['FFF']) ){\n        $x = $this->toX(40);\n        $y = $this->toY($maxWind['H']);\n        $this->_image->drawText( $x, $y-15, 'Max '.(int)$maxWind['H'].'м' ,$TextSettingsWIND);\n        $this->_image->drawText( $x, $y+3,  $maxWind['DD'].'° - '.(int)($maxWind['FFF']*3.6) ,$TextSettingsWIND);\n      }\n    }\n\n\n    if ( isset($stream['begin']) && isset($stream['end']) ){\n        $Points   = array();\n        $step     = 15;\n        $Points[] = $this->toX(50);\n        $Points[] = $this->toY($stream['end']);\n        $Points[] = $this->toX(50);\n        $Points[] = $this->toY($stream['begin']);\n        $Points[] = $this->toX(50+$step);\n        $Points[] = $this->toY($stream['begin']);\n        $Points[] = $this->toX(50+$step);\n        $Points[] = $this->toY($stream['end']);\n        $this->_image->drawPolygon( $Points, $polygonWIND );\n    }\n\n    //рисуем ветер по высотам\n    $x                        = $this->toX(50)+60; //на одной линии вверх рисуем\n    $imgHeight                = 14;\n    $prev                     = array();\n    $TextSettings2['DrawBox'] = FALSE;\n    $xOffset                  = 0;\n\n    foreach ($this->_kn->getmergedarray() as $key => $value) {\n      if ( isset($value['FFF']) && isset($value['DD']) ){\n        if ( !isset($value['H']) ) {\n          $value['H']=$this->_kn->PtoH($value['P']);\n        }\n        if ( isset($prev['H']) && ( $value['H'] - $prev['H'] <200 )   ) {\n            continue;\n        }\n        if ( $value['DD']>30 && $value['DD']<150 ) {\n          $xOffset=63;\n        }\n        $y =  $this->toY( $value['H'] )-$imgHeight;\n        $this->_image->drawText( $x+10-$xOffset, $y+5, $value['DD'].'° - '. (int)($value['FFF']*3.6) ,$TextSettings2);\n        $this->drawWindLeaf( $value['FFF'],$value['DD'],$x,$y );\n        \n        $prev = $value;\n        $xOffset=0;\n      }\n    }\n\n    return $this;\n  }\n\n\n  /**\n   * Draw spline of sostoyan\n   * @return [type] [description]\n   */\n  public function drawSost(){\n\n    /***                                        ***\n     * *                                        * *\n     * *     К Р И В А Я   С О С Т О Я Н И Я    * *\n     * *                                        * *\n     ***                                        ***/\n    //включаем тени\n    $this->_image->setShadow( TRUE, $this->_shadow );  \n\n    //рисуем кривую состояния\n    $start     = $this->_values['std']['surface'];\n    $inversion = $this->_kn->getAllInversion();\n\n    if ( is_array($inversion)\n         && isset($inversion[0]['start']['H'])\n         && $inversion[0]['start']['H'] == $this->_kn->PtoH($this->_values['std']['surface']['P']) ){\n        $start = $inversion[0]['stop'];\n    }\n\n    if ( (!isset($start['H']) || $start['H']=='' ) && isset($start['P']) ) {\n      $start['H']=$this->_kn->PtoH($start['P']);\n    }\n\n    // \n    //сохраняем \n    $this->_start = $start;\n\n    //рисуем уровень конденсации\n    $uk   = $this->_kn->getUK();\n    $sost = $this->_kn->getSostSpline($uk,$start); //задаем уровень конденсации\n\n    if ( count($sost)>0 ){\n      $points   = $this->_kn->averageSpline2($sost,8);\n      $KScolors = array( \"R\"=>0,\"G\"=>0,\"B\"=>0,\"Ticks\"=>0,'Alpha'=>80 );\n      $this->drawChartSpline($points,$KScolors); \n\n      //рисуем сухую часть кривой состояния\n      $point1 = reset($points);\n      $this->drawChartLine( ($start['T']), ($start['H']), $point1[0],$point1[1],  $KScolors);\n\n    }   \n\n    return $this;\n  }\n\n      \n  /**\n   * Draw energy of unstability\n   * @return [type] [description]\n   */\n  public function drawEnegry(){\n    /***                                                  ***\n     * *                                                  * *\n     * *   Э Н Е Р Г И Я   Н Е У С Т О Й Ч И В О С Т И    * *\n     * *                                                  * *\n     ***                                                  ***/\n\n\n    /**\n     * закрашиваем регион с неустойчивостью или устойчивостью\n     *    \n     */   \n    $polygonStable   = array( \"Alpha\"=>35) + $this->_fblue ;\n    $polygonUNStable = array( \"Alpha\"=>20,\n                              \"Dash\"=>TRUE,\"DashR\"=>170,\"DashG\"=>220,\"DashB\"=>190,\n                              \"BorderR\"=>255, \"BorderG\"=>255,\"BorderB\"=>255)  + $this->_fred;\n    $PointsA         = array();//точки на кривой состояния\n    $PointsT         = array();//точки на кривой температуры\n    $PointsRes       = array(); //итоговый массив\n    $fH              = null;\n    $allValues       = $this->_kn->mergedarray;\n\n    //рисуем уровень конденсации\n    $uk   = $this->_kn->getUK();\n    $sost = $this->_kn->getSostSpline($uk,$this->_start); //задаем уровень конденсации\n    \n    if ( count($sost)==0 ){\n      return $this;\n    }\n\n    $points   = $this->_kn->averageSpline2($sost,8);\n    // $points   = $sost;\n    $points   = array_reverse($points);\n    $point1   = reset($points);\n\n    //точки на кривой состояния\n    foreach ($points as $p) {\n      if ( $fH==null ) {\n        $fH=$p[1];\n      }\n      $PointsA[] = $p[0];\n      $PointsA[] = $p[1];\n    }\n    $PointsA[] = $point1[0];\n    $PointsA[] = $point1[1];\n    $PointsA[] = $this->_start['T'];\n    $PointsA[] = $this->_start['H'];\n\n    //точки на кривой температуры\n    foreach ($allValues as $P => $val) {\n      if ( !isset($val['H']) && isset($val['P']) ) {\n        $val['H'] = $this->_kn->PtoH($val['P']);\n      }\n      if (    isset($val['H']) \n           && isset($val['T']) \n           && $val['H']<$fH \n           && $val['H']>=$this->_start['H'] ){\n         $PointsT[] = $val['T'];\n         $PointsT[] = $val['H'];\n      }\n    }\n    //самая верхняя точка по срезу кривой состояния\n    $PointsT[] = $this->_kn->getT($fH);\n    $PointsT[] = $fH;\n\n    //выделяем регионы с пересечением с кривой состояния и кривой стратификации\n    $size   = sizeof( $PointsT );\n    $prev   = null;\n    $stable = true;\n    $j      = 0; //указатель на адрес в итоговом массиве\n\n    //проходимся сверху вниз по кривой кривой состояния\n    for ($i=0; $i < $size ; $i+=2) { \n      $Tx= $this->_kn->getPointOnSostSpline( null, $PointsT[$i+1] ) ;//температура на высоте кривой стратификации\n      if ( $PointsT[$i] > $Tx ){ //значит устойчиво true\n          if ( !$stable && is_array( $prev ) ){ //если переходим из неустойчивости\n              //ищем точку пересечения температуры с кривой стратификации\n              //по подобным треугольникам (в приближении)\n              $y1 = $PointsT[$i+1];\n              $x1 = $PointsT[$i];\n\n              $y2 = $prev[1];\n              $x2 = $prev[0];\n\n              $a1 = ($y1-$y2);\n              $b1 = $x2-$x1;\n              $c1 = $x1*$y2 - $x2*$y1;\n              //для координат кривой температуры\n              $x1 = $Tx;\n              $x2 = $prev[2];\n              $a2 = ($y1-$y2);\n              $b2 = $x2-$x1;\n              $c2 = $x1*$y2 - $x2*$y1;\n              \n              //точка пересечения прямых\n              ////высота смены курса\n              $y12 = -($a1*$c2 - $a2*$c1)/($a1*$b2 - $a2*$b1);\n              $x12 = $this->_kn->getT( $y12 );\n              \n              $PointsRes[$j]['res'][] = ($x12);\n              $PointsRes[$j]['res'][] = ($y12);\n              $PointsRes[$j]['res'][] = ($x12);\n              $PointsRes[$j]['res'][] = ($y12);\n              $PointsRes[$j]['res'][] = ($PointsT[$i]);\n              $PointsRes[$j]['res'][] = ($PointsT[$i+1]);\n              $PointsRes[$j]['type']  = 'stable';\n              $j++;//завершаем секцию\n          }\n          if ( $stable ){ //если все усточиво - продолжаем массив с точками заполнять\n              $PointsRes[$j]['res'][] = ($PointsT[$i]);\n              $PointsRes[$j]['res'][] = ($PointsT[$i+1]);\n              $PointsRes[$j]['type']  = 'stable';\n          }\n          $stable                = true;\n          $PointsRes[$j]['type'] = 'stable';\n      }else{ //неусточиво false\n          if ( $stable && is_array($prev) ){ //если переходим из устойчивости\n              //ищем точку пересечения температуры с кривой стратификации\n              //по подобным треугольникам (в приближении)\n              $y1 = $PointsT[$i+1];\n              $x1 = $PointsT[$i];\n\n              $y2 = $prev[1];\n              $x2 = $prev[0];\n\n              $a1 = ($y1-$y2);\n              $b1 = $x2-$x1;\n              $c1 = $x1*$y2 - $x2*$y1;\n              //для координат кривой температуры\n              $x1 = $Tx;\n              $x2 = $prev[2];\n              $a2 = ($y1-$y2);\n              $b2 = $x2-$x1;\n              $c2 = $x1*$y2 - $x2*$y1;\n              \n              //точка пересечения прямых\n              ////высота смены курса\n              $y12 = -($a1*$c2 - $a2*$c1)/($a1*$b2 - $a2*$b1);\n              $x12 = $this->_kn->getT($y12);\n\n              $PointsRes[$j]['res'][] = ($x12);\n              $PointsRes[$j]['res'][] = ($y12);\n              $PointsRes[$j]['res'][] = ($x12);\n              $PointsRes[$j]['res'][] = ($y12);\n              $PointsRes[$j]['res'][] = ($PointsT[$i]+0.1);\n              $PointsRes[$j]['res'][] = ($PointsT[$i+1]);\n              $PointsRes[$j]['type']  = 'unstable';\n              $j++;//завершаем секцию\n          }\n          if ( !$stable ){ //если все неусточиво - продолжаем массив с точками заполнять\n              $PointsRes[$j]['res'][] = ($PointsT[$i]+0.1);\n              $PointsRes[$j]['res'][] = ($PointsT[$i+1]);\n              $PointsRes[$j]['type']  = 'unstable';\n          }\n          $stable                = false;\n          $PointsRes[$j]['type'] = 'unstable';\n      }\n      $prev = array( $PointsT[$i], $PointsT[$i+1], $Tx );\n    }\n\n    //включаем тени\n    $this->_image->setShadow(false,$this->_shadow );   \n\n    //заполняем снизу вверх точки температуры      \n    foreach ($PointsRes as $val) {\n      if (!isset($val['res'])){\n        continue;\n      }\n      $stop  = $val['res'][1]; //верхняя граница для температуры\n      $size  = sizeof($val['res'])-1;\n      $start = $val['res'][ $size ];//нижняя граница для температуры\n\n      for ($i=0; $i < $size; $i+=2) { \n        $val['res'][$i]   = $this->toX( $val['res'][$i] );\n        $val['res'][$i+1] = $this->toY( $val['res'][$i+1] );\n      }\n\n      //дополняем массив точками на кривой состояния\n      $size = sizeof($PointsA);\n      for ( $i=0; $i < $size ; $i+=2 ) { \n        if ( $PointsA[$i+1]<=$start && $PointsA[$i+1]>=$stop ){\n          $val['res'][] = $this->toX($PointsA[$i]);\n          $val['res'][] = $this->toY($PointsA[$i+1]);\n        }\n      }\n\n      $val['res'][] = $this->toX( $this->_kn->getT($stop) );\n      $val['res'][] = $this->toY( $stop );\n      if ( $val['type']=='stable' ){\n        print_r($val['res']);\n          $this->_image->drawPolygon($val['res'],$polygonStable);\n      }else{\n          $this->_image->drawPolygon($val['res'],$polygonUNStable);\n      }\n    }\n    \n    //включаем тени\n    $this->_image->setShadow(TRUE,$this->_shadow );   \n\n    return $this;\n  }\n\n\n  /**\n   * Drawing level of condensation\n   * @return [type] [description]\n   */\n  public function drawUK(){\n    /***                                              ***\n     * *                                              * *\n     * *     У Р О В Е Н Ь  К О Н Д Е Н С А Ц И И     * *\n     * *                                              * *\n     ***                                              ***/\n\n    //\n    //рисуем уровень конденсации\n    //\n    $UKcolors       = array( \"Ticks\"=>0,'Alpha'=>80,\n                             'ShowControl'=>false,'Force'=>4, 'Segments'=>20 ) + $this->_fblue;\n    $TextSettingsUK = array( \"R\"=>20,\"G\"=>20,\"B\"=>150,\"Angle\"=>0,'Alpha'=>100,\n                             \"FontSize\"=>$this->_baseSize, \"DrawBox\"=>FALSE,\n                             'BoxR'=>255,'BoxG'=>255,'BoxB'=>255,'BoxAlpha'=>50,\n                             'RoundedRadius'=>5);\n    \n    //рисуем уровень конденсации\n    $uk = $this->_kn->getUK();\n    //рисуем кривую состояния\n    $start  = $this->_values['std']['surface'];\n    $sost   = $this->_kn->getSostSpline($uk,$start); //задаем уровень конденсации\n    $points = $this->_kn->averageSpline2( $sost,8 );\n    $point1 = reset($points);\n\n    $points = array();\n\n    $dX     = 18;\n    if ( $point1[0]+$dX > 50){\n        $dX = $point1[0]+$dX -50;\n    }\n        \n    //первая точка - УК\n    $points[] = array($point1[0], $point1[1]);\n    //рисуем синусоиду\n    $k=1;\n    for ( $w = $point1[0]+0.3; $w<($point1[0]+$dX); $w+=1 ){            \n        $points[] = array( $w, $point1[1]+50*$k );            \n        $k=-$k;\n    }\n    $points[] = array( $point1[0]+$dX, $point1[1] );\n    $this->drawChartSpline($points,$UKcolors); \n\n    $this->_image->drawText( $this->toX($point1[0]+$dX +1), \n                             $this->toY($point1[1]-100), \n                             'УК',\n                             $TextSettingsUK );\n\n    $TextSettingsUK['FontSize'] = 11;\n    $TextSettingsUK['DrawBox']  = TRUE;\n\n    //включаем тени\n    $this->_image->setShadow(FALSE);    \n\n    $this->_image->drawText( $this->toX($point1[0]+$dX+4),\n                             $this->toY($point1[1]-100), \n                             (int)($uk).'м' ,\n                             $TextSettingsUK );\n\n    return $this;\n  }\n      \n\n  /**\n   * draw cloud levels\n   * @return [type] [description]\n   */\n  public function drawClouds(){\n    /***                                              ***\n     * *                                              * *\n     * *               О Б Л А Ч Н О С Т Ь            * *\n     * *                                              * *\n     ***                                              ***/\n    $polygonCLOUD      = array( \"R\"=>0,\"G\"=>100,\"B\"=>255,\"Alpha\"=>20,\n                                \"Dash\"=>TRUE,\"DashR\"=>170,\"DashG\"=>220,\"DashB\"=>190,\n                                \"BorderR\"=>255, \"BorderG\"=>255,\"BorderB\"=>255 );\n    $TextSettingsCLOUD = array( \"R\"=>20,\"G\"=>20,\"B\"=>200, 'Alpha'=>90,\n                                'BoxR'=>255,'BoxG'=>255,'BoxB'=>255,'BoxAlpha'=>90,\n                                \"FontSize\"=>9,'RoundedRadius'=>2,\"DrawBox\"=>TRUE,\"BoxRounded\"=>TRUE);\n\n    $clouds = $this->_kn->getCloudLayers();\n\n    if ( sizeof($clouds)>0 ){\n      $step  = 10;\n      $start = 40;\n      foreach ($clouds as $val) {\n        $Points   = array();                \n        $Points[] = $this->toX($start);  \n        $Points[] = $this->toY($val['stop']);\n        $Points[] = $this->toX($start+$step);  \n        $Points[] = $this->toY($val['start']);\n        $this->_image->drawFilledRectangle( $Points[0],$Points[1],$Points[2],$Points[3],$polygonCLOUD );\n        $cldName = ( $val['start']>0 && $val['start']<=2000? \n                        'Sc' : \n                        ( $val['start']>2000&&$val['start']<=6000? \n                          'Ac' : \n                          ($val['start']>6000?'Ci':'') ) );\n        $this->_image->drawText( $this->toX( $start+$step/2-1 ), \n                                 $this->toY( $val['start']+($val['stop']-$val['start'])/2-40 ), \n                                 $cldName ,\n                                 $TextSettingsCLOUD);\n        $dy = ( $val['stop']-$val['start'] <500 ? -40 : 60 );\n        $this->_image->drawText( $this->toX( $start ), \n                                 $this->toY( $val['start']-$dy*( $dy<0?-4:1 ) ),\n                                 ceil($val['start']).'м' ,\n                                 $TextSettingsCLOUD);\n        $this->_image->drawText( $this->toX( $start ), \n                                 $this->toY( $val['stop']-$dy ), \n                                 ceil($val['stop']).'м' ,\n                                 $TextSettingsCLOUD);\n      }\n    }\n\n    return $this;\n  }\n\n  /**\n   * draw index of unstability\n   * @return [type] [description]\n   */\n  public function drawIndexes(){\n    /***                                                   ***\n     * *                                                   * *\n     * *     И Н Д Е К С Ы  Н Е У С Т О Й Ч И В О С Т И    * *\n     * *                                                   * *\n     ***                                                   ***/\n    $polygonINDEX          = array( \"R\"=>220,\"G\"=>220,\"B\"=>255,\"Alpha\"=>50,\n                                    \"Dash\"=>TRUE,\"DashR\"=>170,\"DashG\"=>220,\"DashB\"=>190,\n                                    \"BorderR\"=>120, \"BorderG\"=>120,\"BorderB\"=>120,\"Ticks\"=>5);\n    $TextSettingsINDEX     = array( \"R\"=>20,\"G\"=>20,\"B\"=>200, 'Alpha'=>90,\n                                    \"FontSize\"=>$this->_baseSize,\"DrawBox\"=>FALSE);\n    $TextSettingsINDEXR    = array( \"R\"=>200,\"G\"=>20,\"B\"=>20, 'Alpha'=>90,\n                                    \"FontSize\"=>$this->_baseSize,\"DrawBox\"=>FALSE);\n    $TextSettingsMinINDEX  = array( \"R\"=>20,\"G\"=>20,\"B\"=>200, 'Alpha'=>90,\n                                    \"FontSize\"=>9,\"DrawBox\"=>FALSE);\n    $TextSettingsMinINDEXR = array( \"R\"=>200,\"G\"=>20,\"B\"=>20, 'Alpha'=>90,\n                                    \"FontSize\"=>9,\"DrawBox\"=>FALSE);\n\n    $string_H  = 22; //высота строки\n    $box_START = 66; //начало по X\n    $box_W     = 20; //ширина блока\n    $offset    = 0;  //текущее смещение (сверху вниз)\n    $start_Y   = 20;  //стартовая позиция для высоты\n\n    //рисуем блок для параметров станции\n    $strings   = 7; //количество строк в блоке\n    $this->_image->drawFilledRectangle( $this->toX( $box_START ) ,            \n                                        $start_Y+$offset ,\n                                        $this->toX( $box_START + $box_W ) ,   \n                                        $start_Y+$offset+$strings*$string_H+10 ,\n                                        $polygonINDEX );    \n    $offset += 22;\n    //@this->_stinfo Array ( [id] => 27612 [name] => Москва [name_en] => Moscow [country] => 3472 [lat] => 55.83 [lon] => 37.61 [high] => 147 ) \n    $this->_image->drawText( $this->toX( $box_START+1 ), \n                             $start_Y+$offset+3 ,\n                             'Пункт:   ' ,\n                             $TextSettingsINDEX);\n    $this->_image->drawText( $this->toX( $box_START+10 ), \n                             $start_Y+$offset ,\n                             $this->_stinfo['name'] ,\n                             $TextSettingsINDEX);\n    $offset +=$string_H;\n    \n    $this->_image->drawText( $this->toX( $box_START+1 ), \n                             $start_Y+$offset+3 ,\n                             'Станция:   ' ,\n                             $TextSettingsINDEX);\n    $this->_image->drawText( $this->toX( $box_START+10 ), \n                             $start_Y+$offset ,\n                             $this->_stinfo['id'] ,\n                             $TextSettingsINDEX);\n    $offset +=$string_H;\n\n    $this->_image->drawText( $this->toX( $box_START+1 ), \n                             $start_Y+$offset+3,\n                             'Дата:   ' ,\n                             $TextSettingsINDEX);\n    $this->_image->drawText( $this->toX( $box_START+10 ), \n                             $start_Y+$offset,\n                             $this->_kn->_date ,\n                             $TextSettingsINDEX);\n    $offset +=$string_H;\n\n    $this->_image->drawText( $this->toX( $box_START+1 ), \n                             $start_Y+$offset+3,\n                             'Время:   ' ,\n                             $TextSettingsINDEX);\n    $this->_image->drawText( $this->toX( $box_START+10 ), \n                             $start_Y+$offset,\n                             $this->_kn->_utc.'.00' ,\n                             $TextSettingsINDEX);\n    $offset +=$string_H;\n\n    $this->_image->drawText( $this->toX( $box_START+1 ), \n                             $start_Y+$offset+3,  \n                             'Широта:   ' ,\n                             $TextSettingsINDEX);\n    $this->_image->drawText( $this->toX( $box_START+10 ), \n                             $start_Y+$offset, \n                             $this->_stinfo['lat'].'°' ,\n                             $TextSettingsINDEX);\n    $offset +=$string_H;\n\n    $this->_image->drawText( $this->toX( $box_START+1 ), \n                             $start_Y+$offset+3,  \n                             'Долгота:   ' ,\n                             $TextSettingsINDEX);\n    $this->_image->drawText( $this->toX( $box_START+10 ), \n                             $start_Y+$offset, \n                             $this->_stinfo['lon'].'°' ,\n                             $TextSettingsINDEX);\n    $offset +=$string_H;\n\n    $this->_image->drawText( $this->toX( $box_START+1 ), \n                             $start_Y+$offset+3 , \n                             'Превышение:   ' ,\n                             $TextSettingsINDEX);\n    $this->_image->drawText( $this->toX( $box_START+13 ), \n                             $start_Y+$offset , \n                             $this->_stinfo['high'].'м' ,\n                             $TextSettingsINDEX);\n    $offset += $string_H + 10;\n\n    \n\n    $drawText = array();\n\n    $T850 = $this->_kn->getT(null,850);\n    $T500 = $this->_kn->getT(null,500);\n    $T700 = $this->_kn->getT(null,700);\n    $d850 = $this->_kn->getParam('D',null,850);\n    $d500 = $this->_kn->getParam('D',null,500);\n    $d700 = $this->_kn->getParam('D',null,700);\n\n    //KINX\n    //Ki=T850-T500+Td850-∆Td700.\n    // < 20                Без гроз\n    // 20 ≤ Ki ≤ 25        Отдельные изолированные грозы\n    // 25 < Ki ≤ 30        Несколько гроз\n    // 30 < Ki ≤ 35        Рассеяные грозы\n    // 35 < Ki ≤ 40        Многочисленные грозы\n    // Ki >40              Грозы повсеместно\n    $KINXRange = [\n                'range'=>[ 20, 25, 30, 35, 40 ],\n                'text' =>[\n                        'Без гроз',\n                        'Отдельные грозы',\n                        'Несколько гроз',\n                        'Рассеяные грозы',\n                        'Многочисленные грозы',\n                        'Грозы повсеместно',\n                        ]\n            ];\n\n    $KINX = $T850 - $T500 + ( $T850 - $d850 ) - $d700;\n\n    $drawText[] = array( \n        'index' => 'Ki (Вайтинга)', \n        'val'=>$KINX, \n        'font'=> ( $KINX<30 ? $TextSettingsINDEX : $TextSettingsINDEXR ),\n        'str' => [\n                        'txt' => $this->compareRanges( $KINX, $KINXRange['range'], $KINXRange['text'] ),\n                        'font'=> ( $KINX<30 ? $TextSettingsMinINDEX : $TextSettingsMinINDEXR )   \n                    ]  );\n    \n\n    // Фауста\n    // \n    $FaustRange = [\n                'range'=>[ 20, 25, 30, 35, 40 ],\n                'text' =>[\n                        'Без гроз',\n                        'Отдельные грозы',\n                        'Несколько гроз',\n                        'Рассеяные грозы',\n                        'Многочисленные грозы',\n                        'Грозы повсеместно',\n                        ]\n            ];\n\n    // $Tv = function( $T850, ($d850+$d700+$d500)/3 ){\n    //     return $this->_kn->getPointOnSostSpline(null,$this->_kn->PtoH(850)) - $this->_kn->getPointOnSostSpline(null,$this->_kn->PtoH(500));\n    // };\n    // $Faust = $Tv() - $T500;\n\n    // $Faust = $this->_kn->getPointOnSostSpline(null,$this->_kn->PtoH(500)) + $this->_kn->getPointOnSostSpline(null,$this->_kn->PtoH(850)) ;\n\n    // $drawText[] = array( \n    //     'index' => 'F (Фауста) '.((int)($d850+$d700+$d500)/3), \n    //     'val'=>$Faust, \n    //     'font'=> ( $Faust<30?$TextSettingsINDEX:$TextSettingsINDEXR ),\n    //     'str' => [\n    //                     'txt' => $this->compareRanges( $Faust, $FaustRange['range'], $FaustRange['text'] ),\n    //                     'font'=> ( $Faust<30?$TextSettingsMinINDEX:$TextSettingsMinINDEXR )   \n    //                 ]  );\n\n    //VT = T850 - T500\n    //VT > 28, следовательно тропосфера обладает высоким потенциалом конвективной неустойчивости, достаточным для образования гроз.\n\n    $VTRange = [\n                'range'=>[ 28 ],\n                'text' =>[\n                        'Нет условий для гроз',\n                        'Условия для грозообразования',\n                        ]\n            ];\n\n    $VT = $T850 - $T500 ;   \n\n    $drawText[] = array( \n        'index' => 'VT', \n        'val'=>$VT, \n        'font'=> ( $VT<28?$TextSettingsINDEX:$TextSettingsINDEXR ),\n        'str' => [\n                        'txt' => $this->compareRanges( $VT, $VTRange['range'], $VTRange['text'] ),\n                        'font'=> ( $VT<28?$TextSettingsMinINDEX:$TextSettingsMinINDEXR )   \n                    ]  );\n\n    //CT = Td850 - T500\n    //СT < 18 — Тропосфера обладает низким потенциалом конвективной неустойчивости, который недостаточен для грозовой деятельности.\n    //CT 18 - 19 — Умеренная неустойчивость. Слабая грозовая деятельность.\n    //CT 20 - 21 — Высокая неустойчивость. Грозы.\n    //CT 22 - 23 — Энергия неустойчивости при которой возможны сильные грозы.\n    //CT 24 - 25 — Высокая энергия неустойчивости. Сильные грозы.\n    //СT> 25 — Очень высокая энергия неустойчивости. Очень сильные грозы.\n\n    $CTRange = [\n                'range'=>[ 18, 20, 22, 25 ],\n                'text' =>[\n                        'Без гроз',\n                        'Слабые грозы',\n                        'Грозы',\n                        'Сильные грозы',\n                        'Очень сильные грозы',\n                        ]\n            ];\n\n    $CT = $T850 - $d850  - $T500;   \n\n    $drawText[] = array( \n        'index' => 'CT', \n        'val'=>$CT, \n        'font'=> ( $CT<20?$TextSettingsINDEX:$TextSettingsINDEXR ),\n        'str' => [\n                        'txt' => $this->compareRanges( $CT, $CTRange['range'], $CTRange['text'] ),\n                        'font'=> ( $CT<20?$TextSettingsMinINDEX:$TextSettingsMinINDEXR )   \n                    ]    );\n    \n    //TOTL = VT + CT\n    //TT < 44 — Грозовая деятельность не возможна.\n    //TT 44 - 45 — Отдельная гроза или несколько гроз.\n    //TT 46 - 47 — Рассеянные грозовые очаги.\n    //TT 48 - 49 — Значительные количество гроз, отдельные из которых сильные.\n    //TT 50 - 51 — Рассеянные сильные грозовые очаги, отдельные очаги со смерчем.\n    //TT 52 - 55 — Значительное количество очагов сильных гроз, отдельные очаги со смерчем.\n    //TT > 55 — Многочисленные сильные грозы с сильными смерчами. \n    // \n    $TOTL = $VT + $CT;   \n    $TOTLRange = [\n                        'range'=>[ 44, 46, 48, 50, 55 ],\n                        'text' =>[\n                                'Без гроз',\n                                'Отдельные грозы',\n                                'Рассеянные грозы',\n                                'Значительные грозы',\n                                'Сильные грозовые очаги',\n                                'Сильные грозы со смерчем',\n                                ]\n                    ];\n\n    $drawText[] = array( 'index' => 'TOTL', \n                         'val'=>$TOTL, \n                         'font'=> ( $TOTL<48?$TextSettingsINDEX:$TextSettingsINDEXR ),\n                         'str' => [\n                                        'txt' => $this->compareRanges( $TOTL, $TOTLRange['range'], $TOTLRange['text'] ),\n                                        'font'=> ( $TOTL<48?$TextSettingsMinINDEX:$TextSettingsMinINDEXR )   \n                                    ]      );\n    \n    //SWEAT = 12⋅Td850 + 20⋅(TT- 49) + 2⋅F850 + 2⋅F500 + (125⋅[sin(D500 - D850)+0.2])\n    //SWEAT < 250 — нет условий для возникновения сильных гроз;\n    //SWEAT 250-350 — есть условия для сильных гроз, града и шквалов;\n    //SWEAT 350-500 — есть условия для очень сильных гроз, крупного града, сильных шквалов, смерчей;\n    //SWEAT ≥ 500 — условия для очень сильных гроз, крупного града, сильных шквалов, сильных смерчей.\n    //\n    $F850  = $this->_kn->getParam('FFF',null,850);\n    $F500  = $this->_kn->getParam('FFF',null,500);\n    $DD850 = $this->_kn->getParam('DD',null,850);\n    $DD500 = $this->_kn->getParam('DD',null,500);\n    $SWEAT = 12*($T850 - $d850) + 20*($TOTL-49) + 3.888*$F850 + 1.944*$F500 + (125* ( sin($DD500 - $DD850)+0.2 ) );\n\n    $SWEATRange = [\n                        'range'=>[ 250,350,500 ],\n                        'text' =>[\n                                'Без гроз',\n                                'Сильные грозы',\n                                'Сильные грозы, град, шквал',\n                                'Очень сильные грозы',\n                                ]\n                    ];\n\n    $drawText[] = array( \n                    'index' => 'SWEAT', \n                    'val'=>$SWEAT, \n                    'font'=> ( $SWEAT<250?$TextSettingsINDEX:$TextSettingsINDEXR ),\n                    'str' => [\n                                'txt' => $this->compareRanges( $SWEAT, $SWEATRange['range'], $SWEATRange['text'] ),\n                                'font'=> ( $SWEAT<250?$TextSettingsMinINDEX:$TextSettingsMinINDEXR )   \n                             ]  );\n\n    // Li — Lifted index\n    // Li — Разница температур окружающего воздуха и некоторого единичного объёма, поднявшегося [адиабатически] от поверхности земли (или с заданного уровня) до уровня 500 гПа. Li рассчитывается с учётом вовлечения окружающего воздуха.\n    // Li — характеризует термическую стратификацию атмосферы по отношению к вертикальным перемещениям воздуха. Если значения Li положительные, то атмосфера (в соответствующем слое) устойчива. Если значения Li отрицательные — атмосфера неустойчива.\n    // Li ≥ 6 — Глубокая инверсия. Атмосфера очень устойчива. Развиты нисходящие движения воздуха.\n    // 1 ≤ Li ≤ 5 — Устойчивое состояние атмосферы. Кучевая облачность хорошей погоды.\n    // 0 ≥ Li ≥ -2 — Небольшая неустойчивость. Конвективная оьлачность с ливнями, при интенсивном дневном прогреве или в зоне атмосферного фронта — с грозами и градом.\n    // -3 ≥ Li ≥ -5 — Умеренная неустойчивость. Сильные грозы.\n    // Li ≤ -6 — Высокая неустойчивость. Очень сильные грозы. \n    // \n    // LI= Tc(500mb) - Tp(500mb) \n    // $Tw = $this->_kn->std['surface']['T'];\n    // $Td = $Tw - $this->_kn->std['surface']['D'];\n    // $Ew = 6.1078 * exp([(9.5939 * $Tw) - 307.004]/[(0.556 * $Tw) + 219.522]);\n    // $E = $Ew - 0.35 * ($Td - $Tw);\n    // $Tp = -1 * {[ln($E/6.1078) * 219.522] + 307.004} / {[ln($E/6.1078) * 0.556] - 9.59539};\n\n    $LI= $T500  - $this->_kn->getPointOnSostSpline(null,$this->_kn->PtoH(500));\n\n    $LIRange = [\n                        'range'=>[ -6,-3,0, 5 ],\n                        'text' =>[\n                                'Высокая неустойчивость',\n                                'Умеренная неустойчивость',\n                                'Небольшая неустойчивость',\n                                'Устойчивая атмосфера',\n                                'Очень устойчивая атмосфера',\n                                ]\n                    ];\n\n    $drawText[] = array( \n                        'index' => 'Li', \n                        'val'=>$LI, \n                        'font'=> ( $LI>-3?$TextSettingsINDEX:$TextSettingsINDEXR ),\n                        'str' => [\n                                    'txt' => $this->compareRanges( $LI, $LIRange['range'], $LIRange['text'] ),\n                                    'font'=> ( $LI>-3?$TextSettingsMinINDEX:$TextSettingsMinINDEXR )   \n                                 ]    );\n\n    // Ti — Thompson index\n    // Ti = Ki- Li. Ki — К-индекс (число Вайтинга), Li — Lifted index.\n    // Ti < 25 — Без гроз.\n    // TI 25 - 34 — Возможны грозы.\n    // TI 35 - 39 — Грозы, местами сильные.\n    // TI ≥ 40 — Сильные грозы.\n    $TI = $KINX - $LI;\n\n    $TIRange = [\n                    'range'=>[ 25,34,40 ],\n                    'text' =>[\n                            'Без гроз',\n                            'Возможны грозы',\n                            'Грозы',\n                            'Сильные грозы',\n                            ]\n                ];\n\n    $drawText[] = array( \n                    'index' => 'Ti', \n                    'val'=>$TI, \n                    'font'=> ( $TI<34?$TextSettingsINDEX:$TextSettingsINDEXR ),\n                    'str' => [\n                                'txt' => $this->compareRanges( $TI, $TIRange['range'], $TIRange['text'] ),\n                                'font'=> ( $TI<34?$TextSettingsMinINDEX:$TextSettingsMinINDEXR )   \n                             ]   );\n\n\n    // SCS — * Экспериментальный индекс мощных конвективных штормов  (Severe Convective Storm)\n    // SCS = 0.083*scpsfc+0.667*ui+0.5*mcsi+0.0025*sweat+0.025*ti\n    // scpsfc – индекс SCP, с использованием sfcCAPE,\n    // ui – индекс Пескова,\n    // mcsi – индекс MCS,\n    // sweat – индекс SWEAT,\n    // ti – индекс Томпсона.\n    // Интерпретация значений индекса SCS:\n    // <1: развития мощных конвективных штормов (МКШ) не ожидается, местами возможны слабые грозы;\n    // 1…2:МКШ маловероятны (вероятность приблизительно 10-20%). Возможны умеренные грозы с отдельными неблагоприятными явлениями (НЯ);\n    // 2...3: небольшая вероятность МКШ (20-40%), условия для неблагоприятных конвективных явлений и гроз умеренной интенсивности;\n    // 3...4: средняя вероятность МКШ (40-60%), возможны комплексы неблагоприятных явлений (КНЯ), местами опасные явления (ОЯ);\n    // 4...5: большая вероятность развития МКШ (60 – 90%) и ОЯ;\n    // >5: очень высокая вероятность (>90%) развития доминирующих устойчивых МКШ (в радиусе примерно до 100-150 км от максимальных значений индекса), комплекса особо разрушительных опасных явлений.\n\n    $SCS = 0;//0.083*scpsfc+0.667*ui+0.5*mcsi+0.0025*sweat+0.025*$TI;\n\n    $SCSRange = [\n                    'range'=>[ 2,3,5 ],\n                    'text' =>[\n                            'Без конвективных штормов',\n                            'Условия для гроз и конвекции',\n                            'Развитие конвективных штормов',\n                            'Опасные конвективные шторма',\n                            ]\n                ];\n\n    $drawText[] = array( \n            'index' => 'SCS', \n            'val'=>$SCS, \n            'font'=> ( $SCS<4?$TextSettingsINDEX:$TextSettingsINDEXR ),\n            'str' => [\n                        'txt' => $this->compareRanges( $SCS, $SCSRange['range'], $SCSRange['text'] ),\n                        'font'=> ( $SCS<4?$TextSettingsMinINDEX:$TextSettingsMinINDEXR )   \n                     ]  );\n\n    $offset+=15;\n\n    $TextSettingsINDEX['FontSize']=10;\n    $this->_image->drawText( $this->toX( $box_START ), $start_Y+$offset+5 , 'Индексы неустойчивости:' ,$TextSettingsINDEX);\n    $offset+=10;\n\n    //рисуем блок для индексов неустойчивости\n    $strings = count($drawText); //количество строк в блоке\n    $this->_image->drawFilledRectangle( $this->toX( $box_START ) ,            $start_Y+$offset ,\n                                     $this->toX( $box_START + $box_W ) ,   $start_Y+$offset+$strings*($string_H+12)+10 ,\n                                     $polygonINDEX );\n\n    $offset +=15;\n    foreach ($drawText as $text) {            \n        $this->_image->drawText( $this->toX( $box_START+1 ), $start_Y+$offset+5 , $text['index'].':' ,$text['font']);\n        $this->_image->drawText( $this->toX( $box_START+15 ), $start_Y+$offset+5 , ceil($text['val']) ,$text['font']);\n        if ( isset( $text['str'] ) ){\n            $this->_image->drawText( $this->toX( $box_START+1 ), $start_Y+$offset+15+5 , $text['str']['txt'] ,$text['str']['font']);\n        }\n        $offset += $string_H+13 ;            \n    }\n\n    return $this;\n  }\n\n  /**\n   * get image\n   * @return [type] [description]\n   */\n  public function getImage(){\n      \n  }\n\n  /**\n   * saving image\n   * @return [type] [description]\n   */\n  public function saveImage(){\n    /* Build the PNG file and send it to the web browser */ \n    $path  = '/png/'.$this->_stinfo['id'].'-'.$this->_kn->_date.'-'.$this->_kn->_utc.'.png';\n    $fpath = $_SERVER['DOCUMENT_ROOT'].$path;\n    $this->_image->render( $fpath );\n    return $this;\n  }\n\n\n  /**\n   * Функция выборки из периодов\n   * @val - значение которое сравниваем\n   * @range - массив значений\n   *          <x\n   *          <x1\n   *          <x2\n   *          ...\n   *          >xn\n   * сравниваем в интервале ДО значения\n   *  массив @text должен быть на 1 больше массива @range (для последнего значения, превышающего интервал)\n   */\n  function compareRanges( $val, $range, $text ){\n      if ( count($range)>0 && count($text)>0 ){\n          $ret=null;\n          for ($i=0; $i<count($range);$i++){\n              if (isset($text[$i])){\n                  if ( $val<$range[$i] ){\n                      return $text[$i];\n                  }\n              }\n          }\n          if ( $val >= $range[count($range)-1] && isset($text[count($range)]) ){\n              return $text[count($range)];\n          }\n      }\n      return false;\n  }\n\n\n\n\n  /**\n   *\n   *.  DRAW function implemintation\n   *\n   * \n   */\n\n\n  //рисуем ветер\n  function drawWindLeaf($ff='',$dd='',$X0=0,$Y0=0,$param = array( \"R\"=>100,\"G\"=>100,\"B\"=>100,\"Alpha\"=>100,'Ticks'=>0 ) ) {\n    $dd=deg2rad($dd-180);\n\n    if ( $ff>125 ) $ff=125;\n\n    $lineWidth = 40; //длина палки\n    $windWidth = 15; //длина пера\n    $windDeg   = 60; //угол пера к палке\n    $wD        = $dd+deg2rad( $windDeg ); //абсолютный угол пера\n    $wD2       = $dd+deg2rad( $windDeg+5 ); //абсолютный угол пера для 25 м/с\n\n    $k1 = (tan($dd)+1) / (1-tan($dd));\n\n    $X1 = $X0+0-$lineWidth*sin($dd);\n    $Y1 = $Y0+0+$lineWidth*cos($dd);\n    \n    $this->_image->drawLine( $X0,$Y0,$X1,$Y1,$param );\n\n    //рисуем перья\n    //сначала по 25 м/с\n    $dX = 7; //шаг для большого пера 25м/с\n    $sdX= 0; //суммарный отступ от конца прямой\n    $steps = ($ff/25);\n    if ( $steps>=1 ){\n      $steps=floor($steps);\n      for ($i=1; $i <= $steps; $i++) { \n        //риуем теругольник\n        \n        $X01 = $X0-($lineWidth-$sdX)*sin($dd); //начало пера\n        $Y01 = $Y0+($lineWidth-$sdX)*cos($dd); //начало пера\n\n        $X11 = $X01-($windWidth)*sin($wD2); //конец пера\n        $Y11 = $Y01+($windWidth)*cos($wD2); //конец пера\n\n        $X02 = $X0-($lineWidth-$sdX-4)*sin($dd); //начало пера\n        $Y02 = $Y0+($lineWidth-$sdX-4)*cos($dd); //начало пера\n\n        $Points[] = $X01;\n        $Points[] = $Y01;\n\n        $Points[] = $X11;\n        $Points[] = $Y11;\n\n        $Points[] = $X02;\n        $Points[] = $Y02;\n\n        $this->_image->drawPolygon($Points,$param);\n\n        $sdX+=$dX;\n      }\n      $ff=$ff-$steps*25; //вычитаем нарисованное\n    }\n\n    //рисуем пятерки\n    $dX=4;\n    $steps = ($ff/5);\n    if ( $steps>=1 ){\n      $steps=floor($steps);\n      for ($i=1; $i <= $steps; $i++) { \n        \n        $X01 = $X0-($lineWidth-$sdX)*sin($dd); //начало пера\n        $Y01 = $Y0+($lineWidth-$sdX)*cos($dd); //начало пера\n\n        $X11 = $X01-($windWidth)*sin($wD); //конец пера\n        $Y11 = $Y01+($windWidth)*cos($wD); //конец пера\n\n        $this->_image->drawLine( $X01,$Y01,$X11,$Y11,$param );\n\n        $sdX+=$dX;\n      }\n      $ff=$ff-$steps*5; //вычитаем нарисованное \n    }\n\n    //рисуем остатки\n    if ( $ff>0&&$ff<5 ){\n        $X01 = $X0-($lineWidth-$sdX)*sin($dd); //начало пера\n        $Y01 = $Y0+($lineWidth-$sdX)*cos($dd); //начало пера\n\n        $X11 = $X01-($windWidth/2)*sin($wD); //конец пера\n        $Y11 = $Y01+($windWidth/2)*cos($wD); //конец пера\n\n        $this->_image->drawLine( $X01,$Y01,$X11,$Y11,$param );\n    }\n\n  }\n\n  //рисуем линию в координатах графика\n  function drawChartLine( $X1,$Y1,$X2,$Y2,$Format=\"\" ){\n\n    $_this = $this->_image;\n\n     $BreakVoid        = isset($Format[\"BreakVoid\"]) ? $Format[\"BreakVoid\"] : TRUE;\n     $VoidTicks        = isset($Format[\"VoidTicks\"]) ? $Format[\"VoidTicks\"] : 4;\n     $BreakR           = isset($Format[\"BreakR\"]) ? $Format[\"BreakR\"] : NULL;\n     $BreakG           = isset($Format[\"BreakG\"]) ? $Format[\"BreakG\"] : NULL;\n     $BreakB           = isset($Format[\"BreakB\"]) ? $Format[\"BreakB\"] : NULL;\n     $DisplayValues    = isset($Format[\"DisplayValues\"]) ? $Format[\"DisplayValues\"] : FALSE;\n     $DisplayOffset    = isset($Format[\"DisplayOffset\"]) ? $Format[\"DisplayOffset\"] : 2;\n     $DisplayColor     = isset($Format[\"DisplayColor\"]) ? $Format[\"DisplayColor\"] : DISPLAY_MANUAL;\n     $DisplayR         = isset($Format[\"DisplayR\"]) ? $Format[\"DisplayR\"] : 0;\n     $DisplayG         = isset($Format[\"DisplayG\"]) ? $Format[\"DisplayG\"] : 0;\n     $DisplayB         = isset($Format[\"DisplayB\"]) ? $Format[\"DisplayB\"] : 0;\n     $RecordImageMap   = isset($Format[\"RecordImageMap\"]) ? $Format[\"RecordImageMap\"] : FALSE;\n     $ImageMapPlotSize = isset($Format[\"ImageMapPlotSize\"]) ? $Format[\"ImageMapPlotSize\"] : 5;\n     $ForceColor       = isset($Format[\"ForceColor\"]) ? $Format[\"ForceColor\"] : FALSE;\n     $ForceR           = isset($Format[\"R\"]) ? $Format[\"R\"] : 0;\n     $ForceG           = isset($Format[\"G\"]) ? $Format[\"G\"] : 0;\n     $ForceB           = isset($Format[\"B\"]) ? $Format[\"B\"] : 0;\n     $ForceAlpha       = isset($Format[\"ForceAlpha\"]) ? $Format[\"ForceAlpha\"] : 100;\n     $R                = $ForceR; $G = $ForceG; $B = $ForceB; $Alpha = isset($Format[\"Alpha\"]) ? $Format[\"Alpha\"] : 100;\n     $Ticks            = isset($Format[\"Ticks\"]) ? $Format[\"Ticks\"] : 0;\n     $Weight           = isset($Format[\"Weight\"]) ? $Format[\"Weight\"] : NULL;\n\n     $_this->LastChartLayout = CHART_LAST_LAYOUT_REGULAR;\n\n     list($XMargin,$XDivs) = $_this->scaleGetXSettings();//[0] => 4.08510638298 [1] => 140\n     \n     if ( $XDivs == 0 ) { \n      $XStep = ($_this->GraphAreaX2-$_this->GraphAreaX1)/4; } else { $XStep = ($_this->GraphAreaX2-$_this->GraphAreaX1-$XMargin*2)/$XDivs;\n     }\n     $X = $_this->GraphAreaX1 + $XMargin; $LastX = NULL; $LastY = NULL;\n     if ( $XDivs == 0 ) { \n      $YStep = ($_this->GraphAreaY2-$_this->GraphAreaY1)/4; } else { $YStep = ($_this->GraphAreaY2-$_this->GraphAreaY1-$XMargin*2)/$XDivs;\n     }\n\n     $Y      = $_this->GraphAreaY1 + $XMargin; $LastX = NULL; $LastY = NULL;\n     $Offset = $XStep*(isset($Format[\"Offset\"]) ? $Format[\"Offset\"] : 90); //сколько отступать справа (где ноль?)\n     $X11    = $X+$X1*$XStep+$Offset;\n     $Y11    = $_this->scaleComputeY($Y1,[]);\n     $X22    = $X+$X2*$XStep+$Offset;\n     $Y22    = $_this->scaleComputeY($Y2,[]);\n\n     $_this->drawLine($X11,$Y11,$X22,$Y22,array(\"R\"=>$R,\"G\"=>$G,\"B\"=>$B,\"Alpha\"=>$Alpha,'Ticks'=>$Ticks,'Weight'=>$Weight ));\n    }\n\n\n  function drawChartSpline($WayPoints,$Format){\n    $_this = $this->_image;\n\n     $BreakVoid        = isset($Format[\"BreakVoid\"]) ? $Format[\"BreakVoid\"] : TRUE;\n     $VoidTicks        = isset($Format[\"VoidTicks\"]) ? $Format[\"VoidTicks\"] : 4;\n     $BreakR           = isset($Format[\"BreakR\"]) ? $Format[\"BreakR\"] : NULL; // 234\n     $BreakG           = isset($Format[\"BreakG\"]) ? $Format[\"BreakG\"] : NULL; // 55\n     $BreakB           = isset($Format[\"BreakB\"]) ? $Format[\"BreakB\"] : NULL; // 26\n     $DisplayValues    = isset($Format[\"DisplayValues\"]) ? $Format[\"DisplayValues\"] : FALSE;\n     $DisplayOffset    = isset($Format[\"DisplayOffset\"]) ? $Format[\"DisplayOffset\"] : 2;\n     $DisplayColor     = isset($Format[\"DisplayColor\"]) ? $Format[\"DisplayColor\"] : DISPLAY_MANUAL;\n     $DisplayR         = isset($Format[\"DisplayR\"]) ? $Format[\"DisplayR\"] : 0;\n     $DisplayG         = isset($Format[\"DisplayG\"]) ? $Format[\"DisplayG\"] : 0;\n     $DisplayB         = isset($Format[\"DisplayB\"]) ? $Format[\"DisplayB\"] : 0;\n     $RecordImageMap   = isset($Format[\"RecordImageMap\"]) ? $Format[\"RecordImageMap\"] : FALSE;\n     $ImageMapPlotSize = isset($Format[\"ImageMapPlotSize\"]) ? $Format[\"ImageMapPlotSize\"] : 5;\n     $ForceR           = isset($Format[\"R\"]) ? $Format[\"R\"] : 0;\n     $ForceG           = isset($Format[\"G\"]) ? $Format[\"G\"] : 0;\n     $ForceB           = isset($Format[\"B\"]) ? $Format[\"B\"] : 0;\n     $Force            = isset($Format['Force'])?$Format['Force']:30;\n     $Segments         = isset($Format['Segments'])?$Format['Segments']:0;\n     $ShowControl      = isset( $Format['ShowControl'] ) ? $Format['ShowControl'] : FALSE;\n     $ForceAlpha       = isset($Format[\"ForceAlpha\"]) ? $Format[\"ForceAlpha\"] : 100;\n     $R                = $ForceR; $G = $ForceG; $B = $ForceB; $Alpha = isset($Format[\"Alpha\"]) ? $Format[\"Alpha\"] : 100;\n     $Ticks            = isset($Format[\"Ticks\"]) ? $Format[\"Ticks\"] : 0;\n     $Weight           = isset($Format[\"Weight\"]) ? $Format[\"Weight\"] : NULL;\n\n     list($XMargin,$XDivs) = $_this->scaleGetXSettings();//[0] => 4.08510638298 [1] => 140\n     if ( $XDivs == 0 ) { $XStep = ($_this->GraphAreaX2-$_this->GraphAreaX1)/4; } else { $XStep = ($_this->GraphAreaX2-$_this->GraphAreaX1-$XMargin*2)/$XDivs; }\n     $X = $_this->GraphAreaX1 + $XMargin; $LastX = NULL; $LastY = NULL;\n     if ( $XDivs == 0 ) { $YStep = ($_this->GraphAreaY2-$_this->GraphAreaY1)/4; } else { $YStep = ($_this->GraphAreaY2-$_this->GraphAreaY1-$XMargin*2)/$XDivs; }\n     $Y = $_this->GraphAreaY1 + $XMargin; $LastX = NULL; $LastY = NULL;\n\n     $Offset    = $XStep*(isset($Format[\"Offset\"]) ? $Format[\"Offset\"] : 90); //сколько отступать справа (где ноль?)\n\n     foreach ($WayPoints as $key => $points) {\n       $WayPoints[$key] = array( \n          $X+$points[0]*$XStep+$Offset,\n          $_this->scaleComputeY($points[1],[])\n        );\n     }\n      //,\"ShowControl\"=>TRUE\n     $_this->drawSpline($WayPoints,array(\"R\"=>$R,\"G\"=>$G,\"B\"=>$B,\"Alpha\"=>$Alpha,\"Ticks\"=>$Ticks,\"Weight\"=>$Weight,'Segments'=>$Segments,'ShowControl'=>$ShowControl, 'Force'=>$Force));\n  }\n\n    function toX( $X1 ){\n      $_this = $this->_image;\n     list($XMargin,$XDivs) = $_this->scaleGetXSettings();//[0] => 4.08510638298 [1] => 140\n     \n     if ( $XDivs == 0 ) { $XStep = ($_this->GraphAreaX2-$_this->GraphAreaX1)/4; } else { $XStep = ($_this->GraphAreaX2-$_this->GraphAreaX1-$XMargin*2)/$XDivs; }\n     $X = $_this->GraphAreaX1 + $XMargin; $LastX = NULL; $LastY = NULL;\n     if ( $XDivs == 0 ) { $YStep = ($_this->GraphAreaY2-$_this->GraphAreaY1)/4; } else { $YStep = ($_this->GraphAreaY2-$_this->GraphAreaY1-$XMargin*2)/$XDivs; }\n     $Y = $_this->GraphAreaY1 + $XMargin; $LastX = NULL; $LastY = NULL;\n\n     $Offset    = $XStep*(isset($Format[\"Offset\"]) ? $Format[\"Offset\"] : 90); //сколько отступать справа (где ноль?)\n\n     $X11=$X+$X1*$XStep+$Offset;\n     return $X11;\n    }\n\n    function toY( $Y1 ){\n      $_this = $this->_image;\n      return $_this->scaleComputeY($Y1,[]);\n    }\n\n}",
+			"file": "packages/f2re/aero/src/AeroDrawer.php",
+			"file_size": 74125,
+			"file_write_time": 132149811000000000,
+			"settings":
+			{
+				"buffer_size": 67557,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "packages/f2re/aero/src/AeroDecoder.php",
+			"settings":
+			{
+				"buffer_size": 44182,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
@@ -149,26 +219,11 @@
 			}
 		},
 		{
-			"file": "resources/js/app.js",
+			"file": "/Volumes/web/meteo/application/models/Usermodel.php",
 			"settings":
 			{
-				"buffer_size": 1101,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "resources/js/components/ExampleComponent.vue",
-			"settings":
-			{
-				"buffer_size": 552,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "routes/web.php",
-			"settings":
-			{
-				"buffer_size": 453,
+				"buffer_size": 76889,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		}
@@ -196,13 +251,21 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 280.0,
-		"last_filter": "insta",
+		"height": 372.0,
+		"last_filter": "",
 		"selected_items":
 		[
 			[
 				"insta",
 				"Package Control: Install Package"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"phpf",
+				"phpfmt: update PHP binary path"
 			],
 			[
 				"remove",
@@ -245,17 +308,32 @@
 	},
 	"expanded_folders":
 	[
-		"/Volumes/web-1/aero",
-		"/Volumes/web-1/aero/app",
-		"/Volumes/web-1/aero/resources",
-		"/Volumes/web-1/aero/resources/js",
-		"/Volumes/web-1/aero/resources/js/components",
-		"/Volumes/web-1/aero/resources/sass",
-		"/Volumes/web-1/aero/resources/views",
-		"/Volumes/web-1/aero/routes"
+		"/Volumes/web/aero",
+		"/Volumes/web/aero/config",
+		"/Volumes/web/aero/packages",
+		"/Volumes/web/aero/packages/f2re",
+		"/Volumes/web/aero/packages/f2re/aero",
+		"/Volumes/web/aero/packages/f2re/aero/src",
+		"/Volumes/web/aero/resources",
+		"/Volumes/web/aero/resources/views",
+		"/Volumes/web/aero/routes"
 	],
 	"file_history":
 	[
+		"/Users/imac/Downloads/Super FunLand | Lower Manhattan | NYC.html",
+		"/Volumes/web/aero/routes/web.php",
+		"/Volumes/web/aero/packages/f2re/aero/src/routes.php",
+		"/Users/imac/Downloads/Samsung Partner Forum 2019 | Oct 17, 2019 | Samsung@First Campus.html",
+		"/Volumes/web/meteo/application/libraries/pchart/pDraw.class.php",
+		"/Volumes/web/aero/packages/f2re/aero/src/AeroDecoder.php",
+		"/Volumes/web/aero/resources/sass/app.scss",
+		"/Volumes/web/aero/packages/f2re/aero/src/AeroServiceProvider.php",
+		"/Volumes/web/meteo/application/libraries/KN04.php",
+		"/Users/imac/Library/Application Support/Sublime Text 3/Packages/phpfmt/message",
+		"/Volumes/web/aero/config/app.php",
+		"/Volumes/web/aero/composer.json",
+		"/Volumes/web/aero/resources/js/app.js",
+		"/Volumes/web/aero/resources/js/components/ExampleComponent.vue",
 		"/Users/imac/Downloads/Current.rawins",
 		"/Users/imac/Downloads/urls.txt",
 		"/Volumes/web/vchae/frontend/src/styles/partials/_my.scss",
@@ -369,29 +447,18 @@
 		"/HTTP/kvserp.ru/application/libraries/Item.php",
 		"/HTTP/kvserp.ru/application/controllers/auth.php",
 		"/private/var/folders/j5/4bxxdc0d6lbg38km5n_7d_2m0000gn/T/fz3temp-1/database.php",
-		"/Users/imac/Downloads/solvintech_htest(2).sql",
-		"/private/var/folders/j5/4bxxdc0d6lbg38km5n_7d_2m0000gn/T/fz3temp-1/robots.txt",
-		"/HTTP/kvserp.ru/css/bootstrap.min.css",
-		"/HTTP/kvserp.ru/index.php",
-		"/HTTP/kvserp.ru/application/views/about.php",
-		"/HTTP/kvserp.ru/css/about.css",
-		"/HTTP/kvserp.ru/application/models/mainmodel.php",
-		"/HTTP/kvserp.ru/application/config/database.php",
-		"/Users/imac/Library/Application Support/Sublime Text 2/Packages/Default/Default (OSX).sublime-keymap",
-		"/Users/imac/Library/Application Support/Sublime Text 2/Packages/User/Default (OSX).sublime-keymap",
-		"/Users/imac/Library/Application Support/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
-		"/Users/imac/Library/Application Support/Sublime Text 2/Packages/User/Preferences.sublime-settings",
-		"/HTTP/kvserp.ru/kvserp.sublime-project"
+		"/Users/imac/Downloads/solvintech_htest(2).sql"
 	],
 	"find":
 	{
-		"height": 29.0
+		"height": 46.0
 	},
 	"find_in_files":
 	{
 		"height": 113.0,
 		"where_history":
 		[
+			"",
 			"/Volumes/web/landings/mishki2",
 			"/Volumes/web/tvorchestvo2/web"
 		]
@@ -401,6 +468,84 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"divs",
+			"//",
+			"'//",
+			"Samsung%20Partner%20Forum%202019%20|%20Oct%2017,%202019%20|%20Samsung@First%20Campus_files",
+			"(//",
+			"\"//",
+			"point1",
+			"_fblue",
+			"firsttop",
+			"jquery",
+			"print_r",
+			"averageSpline2",
+			"shadow",
+			"start",
+			"allValues",
+			"point1",
+			"interp",
+			"getPlotX",
+			"_plotsize",
+			"getT",
+			"stantionInfo",
+			"UKP",
+			"PsrZ_900",
+			"getRealT",
+			"$uk",
+			"uk",
+			"getSostSpline",
+			"values",
+			"drawLine",
+			"drawWind",
+			"deg2rad",
+			"T20",
+			"_image->toY",
+			"_image->toX",
+			"toX",
+			"drawBezier",
+			"_image->drawChartSpline",
+			"drawChartSpline",
+			"this",
+			"isreal",
+			"cloud",
+			"->->",
+			"_image->drawChartLine",
+			"drawChartLine",
+			"this",
+			"toX",
+			"this",
+			"scaleComputeY",
+			"drawChartLine",
+			"getPlotX",
+			"_param_list",
+			"toArray",
+			"to_array",
+			"setKn",
+			"$kn->",
+			"inversion",
+			"_values",
+			"setKn",
+			"checkData",
+			"_stinfo",
+			"getPlotY",
+			"$myPicture",
+			"_data",
+			"$myData->",
+			"AeroDrawer",
+			"myPicture",
+			"shadow",
+			"$values",
+			"$kn",
+			"getH",
+			"PtoH",
+			"getmergedarray",
+			"getmergedarray\\",
+			"Usermodel",
+			"parseT",
+			"parseP",
+			"parseDate",
+			"Usermodel",
 			"vue.min",
 			"alltea",
 			"category_id",
@@ -450,11 +595,7 @@
 			"sub-item-info",
 			"font-size: 14px",
 			";\n",
-			"14px",
-			".text",
-			"adsbygoogle.js",
-			"2543621041085290",
-			"google_ad_client"
+			"14px"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -462,6 +603,15 @@
 		"regex": false,
 		"replace_history":
 		[
+			"'http://",
+			"(http://",
+			"\"http://",
+			"toY",
+			"toX",
+			"drawChartSpline",
+			"->",
+			"->drawChartLine",
+			"$this->_kn->"
 		],
 		"reverse": false,
 		"show_context": true,
@@ -472,7 +622,7 @@
 	"groups":
 	[
 		{
-			"selected": 3,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -488,8 +638,8 @@
 						"selection":
 						[
 							[
-								0,
-								0
+								170,
+								170
 							]
 						],
 						"settings":
@@ -500,7 +650,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
@@ -509,15 +659,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2887,
+						"buffer_size": 1631,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								693,
+								693
 							]
 						],
 						"settings":
@@ -527,42 +677,125 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1156.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
 					"buffer": 2,
-					"file": "resources/sass/app.scss",
+					"file": "packages/f2re/aero/src/AeroController.php",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 158,
+						"buffer_size": 2462,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								1148,
+								1148
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Sass/Syntaxes/SCSS.sublime-syntax"
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
 					"buffer": 3,
+					"file": "packages/f2re/aero/src/AeroDrawer.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 67557,
+						"regions":
+						{
+							"bookmarks":
+							{
+								"flags": 144,
+								"icon": "bookmark",
+								"regions":
+								[
+									[
+										1269,
+										1277
+									],
+									[
+										24763,
+										24763
+									],
+									[
+										56892,
+										56892
+									]
+								],
+								"scope": "bookmarks"
+							}
+						},
+						"selection":
+						[
+							[
+								27598,
+								27598
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 16554.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "packages/f2re/aero/src/AeroDecoder.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 44182,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								30650,
+								30650
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 19530.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
 					"file": "/Volumes/web/meteo/application/libraries/KN04.php",
 					"semi_transient": false,
 					"settings":
@@ -574,8 +807,8 @@
 						"selection":
 						[
 							[
-								898,
-								898
+								15480,
+								17427
 							]
 						],
 						"settings":
@@ -584,96 +817,40 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 10415.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "resources/js/app.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1101,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "resources/js/components/ExampleComponent.vue",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 552,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Vue Syntax Highlight/vue.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
 					"buffer": 6,
-					"file": "routes/web.php",
+					"file": "/Volumes/web/meteo/application/models/Usermodel.php",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 453,
+						"buffer_size": 76889,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								10834,
+								10834
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/PHP/PHP.sublime-syntax"
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 4895.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 1,
 					"type": "text"
 				}
 			]
@@ -685,7 +862,7 @@
 	},
 	"input":
 	{
-		"height": 37.0
+		"height": 45.0
 	},
 	"layout":
 	{
@@ -726,7 +903,7 @@
 	"project": "aero.sublime-project",
 	"replace":
 	{
-		"height": 54.0
+		"height": 78.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -779,6 +956,10 @@
 	"selected_group": 0,
 	"settings":
 	{
+		"xdebug":
+		{
+			"hide_conflict": false
+		}
 	},
 	"show_minimap": true,
 	"show_open_files": false,

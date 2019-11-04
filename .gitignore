@@ -12,3 +12,5 @@ npm-debug.log
 yarn-error.log
 .phpintel/
 composer.lock
+public/png/
+aero.sublime-workspace
