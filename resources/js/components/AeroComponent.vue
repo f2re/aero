@@ -22,16 +22,30 @@
         </div>
 
         <div class="col-md-8">
-            <img class="img-fluid img-thumbnail"
+            <a v-bind:href="pathToImg"
+               v-bind:class="{ 'd-none':pathToImg=='' }">
+                <img class="img-fluid img-thumbnail"
                  v-bind:src="pathToImg"
                  v-bind:alt="selectedStantion.name"
                  v-bind:class="{ 'd-none':pathToImg=='' }">
+            </a>
 
             <div class="img-loader" 
                  v-bind:class="{ 'd-none':pathToImg!=''&&!ajaxBlock }">                
-                 <img src="/loaders/rings.svg" width="100px">
+                 <img src="/loaders/rings.svg" width="100px"> 
             </div>
         </div>
+
+        <div class="col-md-12 mt-3 mb-3">
+            <h3 class="text-dark mt-5">Вставьте в поле ниже код в формате КН-04 и нажмите кнопку СФОРМИРОВАТЬ</h3>
+            <textarea class="form-control input" name="raw" 
+                    v-model="raw"
+                    v-bind:disabled="ajaxBlock" ></textarea>
+            <button class="mt-3 btn btn-lg btn-primary border-light  mb-1 "
+                    v-on:click="fromraw"
+                    v-bind:disabled="ajaxBlock">Сформировать</button>
+        </div>
+
 
     </div>    
 </template>
@@ -69,6 +83,8 @@
             stloading:false,
             // блокируем все аякс запросы
             ajaxBlock:false,
+            // raw text code
+            raw:'',
         }),
 
         mounted() {
@@ -106,6 +122,35 @@
                 // блокируем все вызовы и ставим прелоадер
                 this.ajaxBlock=true;
                 axios.get(this.urls.draw+this.selectedStantion.id)
+                    .then( response =>{
+                        this.pathToImg = response.data.path;
+                        // разблокируем все
+                        this.ajaxBlock=false;
+                    } )
+                    .catch(e=>{
+                        this.errors.push(e);
+                        // разблокируем все
+                        this.ajaxBlock=false;
+                    });
+            },
+
+            /**
+             * post request from raw text
+             * @return {[type]} [description]
+             */
+            fromraw(){
+                
+                if ( this.raw=='' ){
+                    console.log('надо вставить код!');
+                    return false;
+                }
+
+                this.selectedStantion = '';
+                this.pathToImg = '';
+                // блокируем все вызовы и ставим прелоадер
+                this.ajaxBlock=true;
+
+                axios.post(this.urls.draw, { raw:this.raw } )
                     .then( response =>{
                         this.pathToImg = response.data.path;
                         // разблокируем все
